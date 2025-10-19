@@ -1,8 +1,28 @@
 [
-  {"nombre":"Tomate","cantidad":100,"unidad":"gramos","precio":0.5,"tipo":"Verduras"},
-  {"nombre":"Pollo","cantidad":150,"unidad":"gramos","precio":1.2,"tipo":"Proteínas"},
-  {"nombre":"Lechuga","cantidad":50,"unidad":"gramos","precio":0.3,"tipo":"Verduras"},
-  {"nombre":"Agua","cantidad":1,"unidad":"galón","precio":0.2,"tipo":"Bebidas"},
-  {"nombre":"Jugo","cantidad":2,"unidad":"vasos","precio":0.5,"tipo":"Bebidas"}
+  {
+    "nombre": "Menú Lunes",
+    "categoria": "Almuerzo",
+    "tiempos": [
+      {
+        "nombre": "Primer Tiempo",
+        "ingredientes":[
+          {"nombre":"Tomate","cantidad":100},
+          {"nombre":"Pollo","cantidad":150}
+        ]
+      },
+      {
+        "nombre": "Segundo Tiempo",
+        "ingredientes":[
+          {"nombre":"Lechuga","cantidad":50}
+        ]
+      },
+      {
+        "nombre": "Bebidas",
+        "ingredientes":[
+          {"nombre":"Agua","cantidad":1,"unidad":"galón"},
+          {"nombre":"Jugo","cantidad":2,"unidad":"vasos"}
+        ]
+      }
+    ]
+  }
 ]
-
