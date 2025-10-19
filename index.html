@@ -1,92 +1,115 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Recetario Dinámico</title>
-  <link rel="stylesheet" href="styles.css">
 
-  <!-- Tailwind (CDN) para diseño moderno sin instalar nada -->
+  <!-- Tailwind CSS para estilo -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
+  <!-- Iconos -->
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col">
+<body class="bg-orange-50 min-h-screen flex flex-col">
 
-  <!-- Encabezado -->
-  <header class="bg-green-600 text-white py-4 shadow-md">
-    <h1 class="text-center text-3xl font-bold">🍳 Recetario Dinámico</h1>
-    <p class="text-center text-sm">Calcula ingredientes y costos según el número de personas</p>
-  </header>
-
-  <!-- Contenedor principal -->
-  <main class="flex-1 container mx-auto px-4 py-6">
-
-    <!-- Selección de receta -->
-    <section class="mb-6">
-      <h2 class="text-xl font-semibold mb-2">Selecciona una receta:</h2>
-      <select id="recetaSelect" class="w-full border border-gray-300 rounded-lg p-2">
-        <option value="">-- Elige una receta --</option>
-        <option value="sopa-lentejas">Sopa de Lentejas</option>
-        <option value="ensalada-mixta">Ensalada Mixta</option>
-        <!-- Puedes agregar más recetas aquí -->
-      </select>
-    </section>
-
-    <!-- Cantidad de personas -->
-    <section class="mb-6">
-      <h2 class="text-xl font-semibold mb-2">Número de personas:</h2>
-      <input 
-        type="number" 
-        id="personasInput" 
-        class="w-full border border-gray-300 rounded-lg p-2" 
-        placeholder="Ejemplo: 10"
-        min="1"
-      >
-    </section>
-
-    <!-- Botón para calcular -->
-    <div class="mb-6 text-center">
-      <button 
-        id="calcularBtn" 
-        class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold shadow-md transition"
-      >
-        Calcular ingredientes y costos
-      </button>
+  <!-- NAVBAR SUPERIOR -->
+  <nav class="bg-orange-500 text-white py-4 shadow-md">
+    <div class="container mx-auto flex justify-between items-center px-4">
+      <h1 class="text-2xl font-bold flex items-center gap-2">
+        🍳 Recetario Dinámico
+      </h1>
+      <div class="flex items-center gap-4">
+        <button id="btnVerRecetas" class="hover:bg-orange-600 px-3 py-2 rounded-lg transition">
+          Ver Recetas
+        </button>
+        <button id="btnAgregarReceta" class="hover:bg-orange-600 px-3 py-2 rounded-lg transition">
+          + Agregar Receta
+        </button>
+      </div>
     </div>
+  </nav>
 
-    <!-- Resultados -->
-    <section id="resultados" class="hidden">
-      <h2 class="text-2xl font-semibold mb-4">Desglose de ingredientes y costos</h2>
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="flex-1 container mx-auto p-4">
+    <!-- SECCIÓN DE LISTA DE RECETAS -->
+    <section id="seccionRecetas" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+      <!-- Aquí se generarán dinámicamente las tarjetas de recetas -->
+    </section>
 
-      <div id="tablaResultados" class="overflow-x-auto">
-        <!-- Aquí se generará dinámicamente la tabla -->
+    <!-- SECCIÓN DE CALCULADORA -->
+    <section id="seccionCalculo" class="hidden mt-8 bg-white shadow-lg rounded-2xl p-6">
+      <h2 id="tituloReceta" class="text-2xl font-bold text-orange-600 mb-4">Receta seleccionada</h2>
+      <div class="flex flex-col md:flex-row items-center gap-4 mb-6">
+        <input type="number" id="inputPersonas" min="1" placeholder="Número de personas"
+          class="border border-gray-300 rounded-lg p-2 w-full md:w-1/3" />
+        <button id="btnCalcular" class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition">
+          Calcular Ingredientes
+        </button>
       </div>
-
-      <!-- Totales -->
-      <div id="totales" class="mt-4 p-4 bg-gray-100 rounded-lg shadow-sm">
-        <!-- Aquí se mostrarán los totales por categoría -->
+      <div id="resultados" class="mt-6 space-y-6">
+        <!-- Aquí aparecerán las tablas separadas por tipo de ingrediente -->
       </div>
-
-      <!-- Botón exportar -->
-      <div class="mt-6 text-center">
-        <button 
-          id="exportarPDF" 
-          class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold shadow-md transition"
-        >
+      <div class="mt-6 text-right">
+        <button id="btnPDF" class="bg-blue-500 text-white px-5 py-2 rounded-lg hover:bg-blue-600 transition">
           Exportar a PDF 📄
         </button>
       </div>
     </section>
 
+    <!-- FORMULARIO PARA AGREGAR O EDITAR RECETA -->
+    <section id="seccionFormulario" class="hidden mt-8 bg-white shadow-xl rounded-2xl p-6">
+      <h2 class="text-2xl font-bold text-orange-600 mb-4">Agregar / Editar Receta</h2>
+      <form id="formReceta" class="space-y-4">
+        <div>
+          <label class="block font-semibold mb-1">Nombre de la receta:</label>
+          <input type="text" id="nombreReceta" class="border border-gray-300 p-2 rounded-lg w-full" required />
+        </div>
+        <div>
+          <label class="block font-semibold mb-1">Categoría (plato principal, postre, etc.):</label>
+          <input type="text" id="categoriaReceta" class="border border-gray-300 p-2 rounded-lg w-full" />
+        </div>
+
+        <div>
+          <h3 class="font-semibold mb-2">Ingredientes</h3>
+          <table id="tablaIngredientes" class="w-full border border-gray-300 mb-3">
+            <thead class="bg-orange-100">
+              <tr>
+                <th class="p-2 border">Nombre</th>
+                <th class="p-2 border">Cantidad (base 1 persona)</th>
+                <th class="p-2 border">Unidad</th>
+                <th class="p-2 border">Precio</th>
+                <th class="p-2 border">Tipo</th>
+                <th class="p-2 border">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyIngredientes">
+              <!-- Filas de ingredientes -->
+            </tbody>
+          </table>
+          <button type="button" id="btnAgregarIngrediente" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition">
+            + Agregar ingrediente
+          </button>
+        </div>
+
+        <div class="text-right">
+          <button type="submit" class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition">
+            Guardar Receta
+          </button>
+        </div>
+      </form>
+    </section>
   </main>
 
-  <!-- Pie de página -->
-  <footer class="bg-gray-200 text-center py-4 text-sm text-gray-600">
-    © 2025 Recetario Dinámico | Desarrollado por <b>Abraham Gómez</b>
+  <!-- PIE DE PÁGINA -->
+  <footer class="bg-orange-100 text-center text-gray-700 py-4 text-sm mt-8">
+    © 2025 Recetario Dinámico | Diseñado por <b>Abraham Gómez</b>
   </footer>
 
-  <!-- Archivo de lógica -->
+  <!-- Librerías necesarias -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
