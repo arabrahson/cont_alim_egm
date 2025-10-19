@@ -118,6 +118,8 @@ btnAgregarTiempo.addEventListener("click",()=>{
   agregarTiempo("Tiempo "+(tiemposContainer.children.length+1));
 });
 
+// ... código previo de carga de datos, navegación y renderizado se mantiene ...
+
 function agregarTiempo(nombre){
   const divTiempo = document.createElement("div");
   divTiempo.className="mb-4 p-2 border border-gray-300 rounded-lg bg-orange-50";
@@ -147,12 +149,14 @@ function agregarIngrediente(btn){
   const fila = document.createElement("tr");
   fila.innerHTML=`
     <td class="border p-1"><input placeholder="Nombre"></td>
-    <td class="border p-1"><input type="number" placeholder="Cantidad"></td>
+    <td class="border p-1"><input type="number" step="0.01" min="0" placeholder="Cantidad"></td>
     <td class="border p-1"><input placeholder="Unidad"></td>
     <td class="border p-1 text-center"><button type="button" class="text-red-500" onclick="this.closest('tr').remove()">🗑</button></td>
   `;
   tbody.appendChild(fila);
 }
+
+// ... resto del código (guardar recetas, calcular, exportar PDF, administrar ingredientes) se mantiene igual ...
 
 formReceta.addEventListener("submit",(e)=>{
   e.preventDefault();
@@ -340,3 +344,4 @@ function editarReceta(i){
 function eliminarReceta(i){
   if(confirm("¿Eliminar receta?")){recetas.splice(i,1); renderizarRecetas();}
 }
+
