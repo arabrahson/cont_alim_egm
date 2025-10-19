@@ -1,149 +1,95 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Recetario Dinámico</title>
-
-  <!-- Tailwind CSS para estilo -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
-
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recetario Dinámico</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-orange-50 min-h-screen flex flex-col">
 
-  <!-- NAVBAR SUPERIOR -->
-  <nav class="bg-orange-500 text-white py-4 shadow-md">
-    <div class="container mx-auto flex flex-wrap justify-between items-center px-4 gap-2">
-      <h1 class="text-2xl font-bold flex items-center gap-2">
-        🍳 Recetario Dinámico
-      </h1>
-      <div class="flex flex-wrap items-center gap-2">
-        <button id="btnVerRecetas" class="hover:bg-orange-600 px-3 py-2 rounded-lg transition">
-          Ver Recetas
-        </button>
-        <button id="btnAgregarReceta" class="hover:bg-orange-600 px-3 py-2 rounded-lg transition">
-          + Agregar Receta
-        </button>
-        <button id="btnExportJSON" class="hover:bg-blue-600 px-3 py-2 rounded-lg transition">
-          Exportar JSON
-        </button>
-        <button id="btnImportJSON" class="hover:bg-green-600 px-3 py-2 rounded-lg transition">
-          Importar JSON
-        </button>
-        <input type="file" id="inputFileJSON" accept=".json" class="hidden">
-        <button id="btnAdminIngredientes" class="hover:bg-purple-600 px-3 py-2 rounded-lg transition">
-          Administrar Ingredientes
-        </button>
-      </div>
+<nav class="bg-orange-500 text-white py-4 shadow-md">
+<div class="container mx-auto flex flex-wrap justify-between items-center px-4 gap-2">
+  <h1 class="text-2xl font-bold flex items-center gap-2">🍳 Recetario Dinámico</h1>
+  <div class="flex flex-wrap items-center gap-2">
+    <button id="btnVerRecetas" class="hover:bg-orange-600 px-3 py-2 rounded-lg transition">Ver Recetas</button>
+    <button id="btnAgregarReceta" class="hover:bg-orange-600 px-3 py-2 rounded-lg transition">+ Agregar Receta</button>
+    <button id="btnExportJSON" class="hover:bg-blue-600 px-3 py-2 rounded-lg transition">Exportar JSON</button>
+    <button id="btnImportJSON" class="hover:bg-green-600 px-3 py-2 rounded-lg transition">Importar JSON</button>
+    <input type="file" id="inputFileJSON" accept=".json" class="hidden">
+    <button id="btnAdminIngredientes" class="hover:bg-purple-600 px-3 py-2 rounded-lg transition">Administrar Ingredientes</button>
+  </div>
+</div>
+</nav>
+
+<main class="flex-1 container mx-auto p-4">
+
+<!-- Lista de recetas -->
+<section id="seccionRecetas" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4"></section>
+
+<!-- Calculadora -->
+<section id="seccionCalculo" class="hidden mt-8 bg-white shadow-lg rounded-2xl p-6">
+  <h2 id="tituloReceta" class="text-2xl font-bold text-orange-600 mb-4"></h2>
+  <div class="flex flex-col md:flex-row items-center gap-4 mb-6">
+    <input type="number" id="inputPersonas" min="1" placeholder="Número de personas" class="border border-gray-300 rounded-lg p-2 w-full md:w-1/3" />
+    <button id="btnCalcular" class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition">Calcular Ingredientes</button>
+  </div>
+  <div id="resultados" class="mt-6 space-y-6"></div>
+  <div class="mt-6 text-right">
+    <button id="btnPDF" class="bg-blue-500 text-white px-5 py-2 rounded-lg hover:bg-blue-600 transition">Exportar a PDF 📄</button>
+  </div>
+</section>
+
+<!-- Formulario de recetas -->
+<section id="seccionFormulario" class="hidden mt-8 bg-white shadow-xl rounded-2xl p-6">
+  <h2 class="text-2xl font-bold text-orange-600 mb-4">Agregar / Editar Receta</h2>
+  <form id="formReceta" class="space-y-4">
+    <div>
+      <label class="block font-semibold mb-1">Nombre del menú:</label>
+      <input type="text" id="nombreReceta" class="border border-gray-300 p-2 rounded-lg w-full" required />
     </div>
-  </nav>
+    <div>
+      <label class="block font-semibold mb-1">Categoría:</label>
+      <input type="text" id="categoriaReceta" class="border border-gray-300 p-2 rounded-lg w-full" />
+    </div>
 
-  <!-- CONTENIDO PRINCIPAL -->
-  <main class="flex-1 container mx-auto p-4">
+    <div id="tiemposContainer"></div>
+    <button type="button" id="btnAgregarTiempo" class="bg-green-500 text-white px-4 py-2 rounded-lg mt-2 hover:bg-green-600 transition">+ Agregar Tiempo</button>
 
-    <!-- SECCIÓN DE LISTA DE RECETAS -->
-    <section id="seccionRecetas" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-      <!-- Tarjetas de recetas dinámicas -->
-    </section>
+    <div class="text-right mt-4">
+      <button type="submit" class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition">Guardar Menú</button>
+    </div>
+  </form>
+</section>
 
-    <!-- SECCIÓN DE CALCULADORA -->
-    <section id="seccionCalculo" class="hidden mt-8 bg-white shadow-lg rounded-2xl p-6">
-      <h2 id="tituloReceta" class="text-2xl font-bold text-orange-600 mb-4">Receta seleccionada</h2>
-      <div class="flex flex-col md:flex-row items-center gap-4 mb-6">
-        <input type="number" id="inputPersonas" min="1" placeholder="Número de personas"
-          class="border border-gray-300 rounded-lg p-2 w-full md:w-1/3" />
-        <button id="btnCalcular" class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition">
-          Calcular Ingredientes
-        </button>
-      </div>
-      <div id="resultados" class="mt-6 space-y-6">
-        <!-- Tablas separadas por tipo -->
-      </div>
-      <div class="mt-6 text-right">
-        <button id="btnPDF" class="bg-blue-500 text-white px-5 py-2 rounded-lg hover:bg-blue-600 transition">
-          Exportar a PDF 📄
-        </button>
-      </div>
-    </section>
+<!-- Administrar Ingredientes -->
+<section id="seccionAdminIngredientes" class="hidden mt-8 bg-white shadow-xl rounded-2xl p-6">
+  <h2 class="text-2xl font-bold text-purple-600 mb-4">Administrar Ingredientes</h2>
+  <table class="w-full border border-gray-300">
+    <thead class="bg-purple-100">
+      <tr>
+        <th class="p-2 border">Ingrediente</th>
+        <th class="p-2 border">Cantidad base</th>
+        <th class="p-2 border">Unidad</th>
+        <th class="p-2 border">Precio</th>
+        <th class="p-2 border">Tipo</th>
+      </tr>
+    </thead>
+    <tbody id="tbodyAdminIngredientes"></tbody>
+  </table>
+  <div class="mt-4 text-right">
+    <button id="btnGuardarAdmin" class="bg-purple-500 text-white px-6 py-2 rounded-lg hover:bg-purple-600 transition">Guardar Cambios</button>
+  </div>
+</section>
 
-    <!-- FORMULARIO PARA AGREGAR O EDITAR RECETA -->
-    <section id="seccionFormulario" class="hidden mt-8 bg-white shadow-xl rounded-2xl p-6">
-      <h2 class="text-2xl font-bold text-orange-600 mb-4">Agregar / Editar Receta</h2>
-      <form id="formReceta" class="space-y-4">
-        <div>
-          <label class="block font-semibold mb-1">Nombre de la receta:</label>
-          <input type="text" id="nombreReceta" class="border border-gray-300 p-2 rounded-lg w-full" required />
-        </div>
-        <div>
-          <label class="block font-semibold mb-1">Categoría (plato principal, postre, etc.):</label>
-          <input type="text" id="categoriaReceta" class="border border-gray-300 p-2 rounded-lg w-full" />
-        </div>
+</main>
 
-        <div>
-          <h3 class="font-semibold mb-2">Ingredientes</h3>
-          <table id="tablaIngredientes" class="w-full border border-gray-300 mb-3">
-            <thead class="bg-orange-100">
-              <tr>
-                <th class="p-2 border">Nombre</th>
-                <th class="p-2 border">Cantidad (base 1 persona)</th>
-                <th class="p-2 border">Unidad</th>
-                <th class="p-2 border">Precio</th>
-                <th class="p-2 border">Tipo</th>
-                <th class="p-2 border">Acción</th>
-              </tr>
-            </thead>
-            <tbody id="tbodyIngredientes">
-              <!-- Filas de ingredientes -->
-            </tbody>
-          </table>
-          <button type="button" id="btnAgregarIngrediente" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition">
-            + Agregar ingrediente
-          </button>
-        </div>
+<footer class="bg-orange-100 text-center text-gray-700 py-4 text-sm mt-8">
+© 2025 Recetario Dinámico | Diseñado por Abraham Gómez
+</footer>
 
-        <div class="text-right">
-          <button type="submit" class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition">
-            Guardar Receta
-          </button>
-        </div>
-      </form>
-    </section>
-
-    <!-- SECCIÓN DE ADMINISTRAR INGREDIENTES -->
-    <section id="seccionAdminIngredientes" class="hidden mt-8 bg-white shadow-xl rounded-2xl p-6">
-      <h2 class="text-2xl font-bold text-purple-600 mb-4">Administrar Ingredientes</h2>
-      <table class="w-full border border-gray-300">
-        <thead class="bg-purple-100">
-          <tr>
-            <th class="p-2 border">Ingrediente</th>
-            <th class="p-2 border">Cantidad base (1 persona)</th>
-            <th class="p-2 border">Unidad</th>
-            <th class="p-2 border">Precio</th>
-            <th class="p-2 border">Tipo</th>
-          </tr>
-        </thead>
-        <tbody id="tbodyAdminIngredientes"></tbody>
-      </table>
-      <div class="mt-4 text-right">
-        <button id="btnGuardarAdmin" class="bg-purple-500 text-white px-6 py-2 rounded-lg hover:bg-purple-600 transition">
-          Guardar Cambios
-        </button>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- PIE DE PÁGINA -->
-  <footer class="bg-orange-100 text-center text-gray-700 py-4 text-sm mt-8">
-    © 2025 Recetario Dinámico | Diseñado por <b>Abraham Gómez</b>
-  </footer>
-
-  <!-- Librerías necesarias -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="app.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
-
-
