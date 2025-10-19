@@ -7,8 +7,6 @@
 
   <!-- Tailwind CSS para estilo -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Iconos -->
   <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
 
   <link rel="stylesheet" href="styles.css" />
@@ -17,16 +15,26 @@
 
   <!-- NAVBAR SUPERIOR -->
   <nav class="bg-orange-500 text-white py-4 shadow-md">
-    <div class="container mx-auto flex justify-between items-center px-4">
+    <div class="container mx-auto flex flex-wrap justify-between items-center px-4 gap-2">
       <h1 class="text-2xl font-bold flex items-center gap-2">
         🍳 Recetario Dinámico
       </h1>
-      <div class="flex items-center gap-4">
+      <div class="flex flex-wrap items-center gap-2">
         <button id="btnVerRecetas" class="hover:bg-orange-600 px-3 py-2 rounded-lg transition">
           Ver Recetas
         </button>
         <button id="btnAgregarReceta" class="hover:bg-orange-600 px-3 py-2 rounded-lg transition">
           + Agregar Receta
+        </button>
+        <button id="btnExportJSON" class="hover:bg-blue-600 px-3 py-2 rounded-lg transition">
+          Exportar JSON
+        </button>
+        <button id="btnImportJSON" class="hover:bg-green-600 px-3 py-2 rounded-lg transition">
+          Importar JSON
+        </button>
+        <input type="file" id="inputFileJSON" accept=".json" class="hidden">
+        <button id="btnAdminIngredientes" class="hover:bg-purple-600 px-3 py-2 rounded-lg transition">
+          Administrar Ingredientes
         </button>
       </div>
     </div>
@@ -34,9 +42,10 @@
 
   <!-- CONTENIDO PRINCIPAL -->
   <main class="flex-1 container mx-auto p-4">
+
     <!-- SECCIÓN DE LISTA DE RECETAS -->
     <section id="seccionRecetas" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-      <!-- Aquí se generarán dinámicamente las tarjetas de recetas -->
+      <!-- Tarjetas de recetas dinámicas -->
     </section>
 
     <!-- SECCIÓN DE CALCULADORA -->
@@ -50,7 +59,7 @@
         </button>
       </div>
       <div id="resultados" class="mt-6 space-y-6">
-        <!-- Aquí aparecerán las tablas separadas por tipo de ingrediente -->
+        <!-- Tablas separadas por tipo -->
       </div>
       <div class="mt-6 text-right">
         <button id="btnPDF" class="bg-blue-500 text-white px-5 py-2 rounded-lg hover:bg-blue-600 transition">
@@ -101,6 +110,29 @@
         </div>
       </form>
     </section>
+
+    <!-- SECCIÓN DE ADMINISTRAR INGREDIENTES -->
+    <section id="seccionAdminIngredientes" class="hidden mt-8 bg-white shadow-xl rounded-2xl p-6">
+      <h2 class="text-2xl font-bold text-purple-600 mb-4">Administrar Ingredientes</h2>
+      <table class="w-full border border-gray-300">
+        <thead class="bg-purple-100">
+          <tr>
+            <th class="p-2 border">Ingrediente</th>
+            <th class="p-2 border">Cantidad base (1 persona)</th>
+            <th class="p-2 border">Unidad</th>
+            <th class="p-2 border">Precio</th>
+            <th class="p-2 border">Tipo</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyAdminIngredientes"></tbody>
+      </table>
+      <div class="mt-4 text-right">
+        <button id="btnGuardarAdmin" class="bg-purple-500 text-white px-6 py-2 rounded-lg hover:bg-purple-600 transition">
+          Guardar Cambios
+        </button>
+      </div>
+    </section>
+
   </main>
 
   <!-- PIE DE PÁGINA -->
@@ -113,3 +145,5 @@
   <script src="app.js"></script>
 </body>
 </html>
+
+
