@@ -1,0 +1,30 @@
+/* Animaciones suaves y colores vivos */
+button, input, select {
+  transition: all 0.2s ease-in-out;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+.card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.card-header {
+  background: linear-gradient(45deg, #f97316, #fb923c);
+  color: white;
+  padding: 1rem;
+}
+
+.card-body {
+  padding: 1rem;
+}
