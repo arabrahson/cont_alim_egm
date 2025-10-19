@@ -1,0 +1,22 @@
+{
+  "sopa-lentejas": {
+    "nombre": "Sopa de Lentejas",
+    "categoria": "Plato principal",
+    "base_personas": 1,
+    "ingredientes": [
+      { "nombre": "Lentejas", "cantidad": 100, "unidad": "g", "precio": 5, "tipo": "leguminosa" },
+      { "nombre": "Zanahoria", "cantidad": 50, "unidad": "g", "precio": 2, "tipo": "verdura" },
+      { "nombre": "Cebolla", "cantidad": 30, "unidad": "g", "precio": 1.5, "tipo": "verdura" }
+    ]
+  },
+  "ensalada-mixta": {
+    "nombre": "Ensalada Mixta",
+    "categoria": "Acompañamiento",
+    "base_personas": 1,
+    "ingredientes": [
+      { "nombre": "Lechuga", "cantidad": 80, "unidad": "g", "precio": 3, "tipo": "verdura" },
+      { "nombre": "Tomate", "cantidad": 60, "unidad": "g", "precio": 2.5, "tipo": "verdura" },
+      { "nombre": "Queso fresco", "cantidad": 30, "unidad": "g", "precio": 4, "tipo": "lácteo" }
+    ]
+  }
+}
