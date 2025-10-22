@@ -1,97 +1,140 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Recetario Dinámico</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control de Recetas - Reporte de Compras</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background: #f7f7f7;
+    }
+    h1 {
+      text-align: center;
+      color: #3c5a3c;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      margin-bottom: 30px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    th {
+      background-color: #d6e5d6;
+    }
+    .input-section {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .input-section input {
+      width: 80px;
+      padding: 5px;
+      text-align: center;
+      font-size: 16px;
+    }
+    .platillo {
+      background-color: #a4c3a2;
+      font-weight: bold;
+      text-align: left;
+    }
+    .total {
+      background-color: #f0f5f0;
+      font-weight: bold;
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #45a049;
+    }
+  </style>
 </head>
-<body class="bg-orange-50 min-h-screen flex flex-col">
+<body>
 
-<nav class="bg-orange-500 text-white py-4 shadow-md">
-<div class="container mx-auto flex flex-wrap justify-between items-center px-4 gap-2">
-  <h1 class="text-2xl font-bold flex items-center gap-2">🍳 Recetario Dinámico</h1>
-  <div class="flex flex-wrap items-center gap-2">
-    <button id="btnVerRecetas" class="hover:bg-orange-600 px-3 py-2 rounded-lg transition">Ver Recetas</button>
-    <button id="btnAgregarReceta" class="hover:bg-orange-600 px-3 py-2 rounded-lg transition">+ Agregar Receta</button>
-    <button id="btnExportJSON" class="hover:bg-blue-600 px-3 py-2 rounded-lg transition">Exportar JSON</button>
-    <button id="btnImportJSON" class="hover:bg-green-600 px-3 py-2 rounded-lg transition">Importar JSON</button>
-    <input type="file" id="inputFileJSON" accept=".json" class="hidden">
-    <button id="btnAdminIngredientes" class="hover:bg-purple-600 px-3 py-2 rounded-lg transition">Administrar Ingredientes</button>
+  <h1>Control de Recetas - Reporte de Compras</h1>
+
+  <div class="input-section">
+    <label for="matricula">Matrícula (personas): </label>
+    <input type="number" id="matricula" value="1" min="1">
+    <button onclick="calcularTotales()">Calcular Totales</button>
   </div>
-</div>
-</nav>
 
-<main class="flex-1 container mx-auto p-4">
-
-<section id="seccionRecetas" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4"></section>
-
-<section id="seccionCalculo" class="hidden mt-8 bg-white shadow-lg rounded-2xl p-6">
-  <h2 id="tituloReceta" class="text-2xl font-bold text-orange-600 mb-4"></h2>
-  <div class="flex flex-col md:flex-row items-center gap-4 mb-6">
-    <input type="number" id="inputPersonas" min="1" step="1" placeholder="Número de personas" class="border border-gray-300 rounded-lg p-2 w-full md:w-1/3" />
-    <button id="btnCalcular" class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition">Calcular Ingredientes</button>
-  </div>
-  <div id="resultados" class="mt-6 space-y-6"></div>
-  <div class="mt-6 text-right">
-    <button id="btnPDF" class="bg-blue-500 text-white px-5 py-2 rounded-lg hover:bg-blue-600 transition">Exportar a PDF 📄</button>
-  </div>
-</section>
-
-<section id="seccionFormulario" class="hidden mt-8 bg-white shadow-xl rounded-2xl p-6">
-  <h2 class="text-2xl font-bold text-orange-600 mb-4">Agregar / Editar Receta</h2>
-  <form id="formReceta" class="space-y-4">
-    <div>
-      <label class="block font-semibold mb-1">Nombre del menú:</label>
-      <input type="text" id="nombreReceta" class="border border-gray-300 p-2 rounded-lg w-full" required />
-    </div>
-    <div>
-      <label class="block font-semibold mb-1">Categoría:</label>
-      <input type="text" id="categoriaReceta" class="border border-gray-300 p-2 rounded-lg w-full" />
-    </div>
-
-    <div id="tiemposContainer"></div>
-    <button type="button" id="btnAgregarTiempo" class="bg-green-500 text-white px-4 py-2 rounded-lg mt-2 hover:bg-green-600 transition">+ Agregar Tiempo</button>
-
-    <div class="text-right mt-4">
-      <button type="submit" class="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition">Guardar Menú</button>
-    </div>
-  </form>
-</section>
-
-<section id="seccionAdminIngredientes" class="hidden mt-8 bg-white shadow-xl rounded-2xl p-6">
-  <h2 class="text-2xl font-bold text-purple-600 mb-4">Administrar Ingredientes</h2>
-  <table class="w-full border border-gray-300">
-    <thead class="bg-purple-100">
+  <table id="tabla-recetas">
+    <thead>
       <tr>
-        <th class="p-2 border">Ingrediente</th>
-        <th class="p-2 border">Cantidad base</th>
-        <th class="p-2 border">Unidad</th>
-        <th class="p-2 border">Precio</th>
-        <th class="p-2 border">Tipo</th>
+        <th>Platillo</th>
+        <th>Ingrediente</th>
+        <th>Cantidad por persona (g/ml)</th>
+        <th>Cantidad total a comprar</th>
+        <th>Unidad</th>
       </tr>
     </thead>
-    <tbody id="tbodyAdminIngredientes"></tbody>
+    <tbody id="tabla-body">
+      <!-- Aquí se cargarán las recetas -->
+    </tbody>
   </table>
-  <div class="mt-4 text-right">
-    <button id="btnGuardarAdmin" class="bg-purple-500 text-white px-6 py-2 rounded-lg hover:bg-purple-600 transition">Guardar Cambios</button>
-  </div>
-</section>
 
-</main>
+  <script>
+    // Datos base (puedes añadir las demás recetas aquí)
+    const recetas = [
+      { platillo: "SÁNDWICH O TACO DE HUEVO CON ESPINACA Y QUESO", ingrediente: "Pan integral", cantidad: 54, unidad: "Paquetes" },
+      { platillo: "", ingrediente: "Huevo", cantidad: 35, unidad: "Kg" },
+      { platillo: "", ingrediente: "Espinaca", cantidad: 30, unidad: "Kg" },
+      { platillo: "", ingrediente: "Cebolla", cantidad: 0.5, unidad: "Kg" },
+      { platillo: "", ingrediente: "Aceite", cantidad: 0.3, unidad: "L" },
+      { platillo: "", ingrediente: "Queso panela", cantidad: 12, unidad: "Kg" },
+      { platillo: "", ingrediente: "Lechuga", cantidad: 5, unidad: "Kg" },
+      { platillo: "", ingrediente: "Jitomate", cantidad: 5, unidad: "Kg" },
+      { platillo: "ENSALADA DULCE", ingrediente: "Zanahoria", cantidad: 25, unidad: "Kg" },
+      { platillo: "", ingrediente: "Piña", cantidad: 80, unidad: "Kg" },
+      { platillo: "", ingrediente: "Cacahuate", cantidad: 5, unidad: "Kg" },
+      { platillo: "", ingrediente: "Yogurth natural", cantidad: 6, unidad: "L" },
+      { platillo: "BEBIDA", ingrediente: "Agua natural", cantidad: 250, unidad: "Garrafones" },
+      { platillo: "", ingrediente: "Opción tortilla de maíz", cantidad: 60, unidad: "Kg" }
+    ];
 
-<footer class="bg-orange-100 text-center text-gray-700 py-4 text-sm mt-8">
-© 2025 Recetario Dinámico | Diseñado por Abraham Gómez
-</footer>
+    // Generar tabla al cargar
+    window.onload = function() {
+      const tbody = document.getElementById('tabla-body');
+      recetas.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="platillo">${r.platillo}</td>
+          <td>${r.ingrediente}</td>
+          <td>${r.cantidad}</td>
+          <td class="total">0</td>
+          <td>${r.unidad}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    };
 
-<script src="app.js"></script>
+    // Función para calcular totales
+    function calcularTotales() {
+      const matricula = parseInt(document.getElementById('matricula').value);
+      const filas = document.querySelectorAll("#tabla-body tr");
+      filas.forEach((fila, i) => {
+        const cantidad = recetas[i].cantidad;
+        const total = (cantidad * matricula) / 1000; // ejemplo de conversión si son gramos
+        fila.children[3].textContent = total.toFixed(3);
+      });
+    }
+  </script>
+
 </body>
 </html>
 
 
-<script src="app.js"></script>
-</body>
-</html>
 
