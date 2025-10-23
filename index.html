@@ -3,175 +3,140 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Menús Semanales</title>
+<title>Gestión de Menús Semanales</title>
 <style>
-  body { font-family: Arial, sans-serif; background: #f4f4f9; padding: 20px; }
-  h1,h2 { color: #333; }
-  h2 { background: #4CAF50; color: white; padding: 10px; border-radius: 5px; }
-  .menu { background: white; padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
-  table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+  body { font-family: Arial, sans-serif; padding: 20px; }
+  h2 { margin-top: 30px; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
   th, td { border: 1px solid #ccc; padding: 5px; text-align: left; }
-  th { background: #eee; }
-  input[type="number"] { width: 100px; }
-  #totalSemana { font-weight: bold; font-size: 18px; }
-  #personas { width: 80px; margin-bottom: 20px; }
-  button { padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
-  button:hover { background: #45a049; }
+  input[type='number'], input[type='text'] { width: 60px; }
+  .menu { margin-bottom: 20px; padding: 10px; border: 1px solid #999; }
+  .boton { margin-top: 10px; }
 </style>
 </head>
 <body>
+<h1>Gestión de Menús Semanales</h1>
 
-<h1>Menús Semanales</h1>
-
-<label>Número de personas: <input type="number" id="personas" value="1" min="1" onchange="cargarMenus()"></label>
+<div>
+  <label>Matricula del Alumno: </label>
+  <input type="text" id="matricula" placeholder="Ej. 12345">
+</div>
 
 <div id="menusContainer"></div>
+<button onclick="guardarSeleccion()" class="boton">Guardar Selección</button>
+<button onclick="generarReporte()" class="boton">Generar Reporte Semanal</button>
 
-<h2>Total Semana: $<span id="totalSemana">0</span></h2>
-<button onclick="generarReporte()">Generar Reporte</button>
+<div id="reporteContainer"></div>
 
 <script>
-// Ejemplo de menús con ingredientes por 1 persona
+// Aquí ponemos los menús (resumen ejemplo, se puede expandir con todos los que me enviaste)
 const menus = [
   {
     semana: 1,
-    nombre: "MENÚ 1",
+    menu: 1,
     platillos: [
-      { nombre: "Sándwich o taco de huevo con espinaca y queso", ingredientes: [
-        { nombre: "Pan integral", cantidad: 54, unidad: "g" },
-        { nombre: "Huevo", cantidad: 35, unidad: "g" },
-        { nombre: "Espinaca", cantidad: 30, unidad: "g" },
-        { nombre: "Cebolla", cantidad: 0.5, unidad: "g" },
-        { nombre: "Aceite", cantidad: 0.3, unidad: "L" },
-        { nombre: "Queso panela", cantidad: 12, unidad: "g" },
-        { nombre: "Lechuga", cantidad: 5, unidad: "g" },
-        { nombre: "Jitomate", cantidad: 5, unidad: "g" }
+      {nombre: 'Sándwich o Taco de Huevo con Espinaca y Queso', ingredientes: [
+        {nombre: 'Pan integral', cantidad: 0.1, unidad:'Paquetes'},
+        {nombre: 'Huevo', cantidad: 0.035, unidad:'Kg'},
+        {nombre: 'Espinaca', cantidad:0.03, unidad:'Kg'},
+        {nombre: 'Cebolla', cantidad:0.0005, unidad:'Kg'},
+        {nombre: 'Aceite', cantidad:0.0003, unidad:'L'},
+        {nombre: 'Queso panela', cantidad:0.012, unidad:'Kg'},
+        {nombre: 'Lechuga', cantidad:0.005, unidad:'Kg'},
+        {nombre: 'Jitomate', cantidad:0.005, unidad:'Kg'}
       ]},
-      { nombre: "Ensalada dulce", ingredientes: [
-        { nombre: "Zanahoria", cantidad: 25, unidad: "g" },
-        { nombre: "Piña", cantidad: 80, unidad: "g" },
-        { nombre: "Cacahuate", cantidad: 5, unidad: "g" },
-        { nombre: "Yogurth natural", cantidad: 6, unidad: "L" }
+      {nombre: 'Ensalada Dulce', ingredientes:[
+        {nombre:'Zanahoria', cantidad:0.025, unidad:'Kg'},
+        {nombre:'Piña', cantidad:0.08, unidad:'Kg'},
+        {nombre:'Cacahuate', cantidad:0.005, unidad:'Kg'},
+        {nombre:'Yogurth natural', cantidad:0.006, unidad:'L'}
       ]},
-      { nombre: "Bebida", ingredientes: [
-        { nombre: "Agua natural", cantidad: 250, unidad: "Garrafones" },
-        { nombre: "Opción tortilla de maíz", cantidad: 60, unidad: "g" }
+      {nombre: 'Bebida', ingredientes:[
+        {nombre:'Agua natural', cantidad:0.0125, unidad:'Garrafones'},
+        {nombre:'Tortilla de maíz', cantidad:0.06, unidad:'Kg'}
       ]}
     ]
   },
-  {
-    semana: 1,
-    nombre: "MENÚ 2",
-    platillos: [
-      { nombre: "Bistec con queso panela y nopales en salsa de guajillo", ingredientes: [
-        { nombre: "Bistec de res", cantidad: 27.5, unidad: "g" },
-        { nombre: "Nopal", cantidad: 50, unidad: "g" },
-        { nombre: "Papa", cantidad: 40, unidad: "g" },
-        { nombre: "Queso panela", cantidad: 10, unidad: "g" }
-      ]},
-      { nombre: "Fruta", ingredientes: [
-        { nombre: "Plátano", cantidad: 60, unidad: "g" },
-        { nombre: "Melón", cantidad: 70, unidad: "g" },
-        { nombre: "Semillas de girasol", cantidad: 3, unidad: "g" }
-      ]},
-      { nombre: "Cereal", ingredientes: [
-        { nombre: "Tortilla de maíz", cantidad: 60, unidad: "g" }
-      ]},
-      { nombre: "Bebida", ingredientes: [
-        { nombre: "Agua natural", cantidad: 250, unidad: "Garrafones" }
-      ]}
-    ]
-  }
-  // Agrega todos los demás menús siguiendo esta estructura
+  // Se pueden agregar todos los menús que enviaste aquí siguiendo la misma estructura
 ];
 
-// Cargar menús en pantalla
-function cargarMenus() {
-  const container = document.getElementById("menusContainer");
-  container.innerHTML = "";
-  const personas = parseInt(document.getElementById("personas").value) || 1;
-  
-  menus.forEach((menu, index) => {
-    const div = document.createElement("div");
-    div.classList.add("menu");
-    div.innerHTML = `<h2>SEMANA ${menu.semana} - ${menu.nombre}</h2>`;
-    
-    menu.platillos.forEach(platillo => {
-      let tabla = `<table><tr><th>Platillo/Ingrediente</th><th>Cantidad para ${personas} personas</th></tr>`;
-      platillo.ingredientes.forEach(ing => {
-        tabla += `<tr><td>${ing.nombre}</td><td>${(ing.cantidad * personas).toFixed(3)} ${ing.unidad}</td></tr>`;
+function renderMenus() {
+  const container = document.getElementById('menusContainer');
+  container.innerHTML = '';
+  menus.forEach(m => {
+    const div = document.createElement('div');
+    div.classList.add('menu');
+    let html = `<h2>Semana ${m.semana} - Menú ${m.menu}</h2>`;
+    m.platillos.forEach(p => {
+      html += `<h3>${p.nombre}</h3>`;
+      html += `<table><tr><th>Ingrediente</th><th>Cantidad</th><th>Unidad</th><th>Precio por unidad</th></tr>`;
+      p.ingredientes.forEach(i => {
+        html += `<tr><td>${i.nombre}</td><td>${i.cantidad}</td><td>${i.unidad}</td><td><input type='number' value='0' data-ing='${i.nombre}' data-menu='${m.menu}' data-semana='${m.semana}'></td></tr>`;
       });
-      tabla += `</table>`;
-      div.innerHTML += `<strong>${platillo.nombre}</strong>` + tabla;
+      html += `</table>`;
     });
-
-    const precioGuardado = getCookie(`precio_menu_${index}`) || 0;
-    div.innerHTML += `Precio del menú: $<input type="number" min="0" value="${precioGuardado}" onchange="guardarPrecio(${index}, this.value)">`;
-
+    html += `<label>Seleccionar menú: <input type='checkbox' data-menu='${m.menu}' data-semana='${m.semana}'></label>`;
+    div.innerHTML = html;
     container.appendChild(div);
   });
-
-  actualizarTotalSemana();
 }
 
-// Guardar precio en cookie
-function guardarPrecio(index, valor) {
-  setCookie(`precio_menu_${index}`, valor, 7);
-  actualizarTotalSemana();
-}
+function guardarSeleccion() {
+  const matricula = document.getElementById('matricula').value.trim();
+  if (!matricula) { alert('Ingresa la matrícula'); return; }
 
-// Calcular total semana
-function actualizarTotalSemana() {
-  let total = 0;
-  menus.forEach((menu, index) => {
-    total += parseFloat(getCookie(`precio_menu_${index}`) || 0);
-  });
-  const personas = parseInt(document.getElementById("personas").value) || 1;
-  document.getElementById("totalSemana").innerText = (total * personas).toFixed(2);
-}
+  let seleccion = JSON.parse(localStorage.getItem('seleccion')) || {};
+  seleccion[matricula] = [];
 
-// Cookies simples
-function setCookie(name, value, days) {
-  const d = new Date();
-  d.setTime(d.getTime() + (days*24*60*60*1000));
-  document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/`;
-}
-
-function getCookie(name) {
-  const cname = name + "=";
-  const decodedCookie = decodeURIComponent(document.cookie);
-  const ca = decodedCookie.split(';');
-  for(let i = 0; i < ca.length; i++) {
-    let c = ca[i];
-    while (c.charAt(0) == ' ') c = c.substring(1);
-    if (c.indexOf(cname) == 0) return c.substring(cname.length, c.length);
-  }
-  return "";
-}
-
-// Generar reporte total
-function generarReporte() {
-  const personas = parseInt(document.getElementById("personas").value) || 1;
-  let reporte = `Reporte para ${personas} personas:\n\n`;
-
-  menus.forEach(menu => {
-    reporte += `SEMANA ${menu.semana} - ${menu.nombre}\n`;
-    menu.platillos.forEach(platillo => {
-      reporte += `${platillo.nombre}\n`;
-      platillo.ingredientes.forEach(ing => {
-        reporte += `  - ${ing.nombre}: ${(ing.cantidad * personas).toFixed(3)} ${ing.unidad}\n`;
+  menus.forEach(m => {
+    const checkbox = document.querySelector(`input[type='checkbox'][data-menu='${m.menu}'][data-semana='${m.semana}']`);
+    if (checkbox.checked) {
+      let menuData = {semana:m.semana, menu:m.menu, ingredientes:[]};
+      m.platillos.forEach(p => {
+        p.ingredientes.forEach(i => {
+          const precioInput = document.querySelector(`input[type='number'][data-ing='${i.nombre}'][data-menu='${m.menu}'][data-semana='${m.semana}']`);
+          menuData.ingredientes.push({nombre:i.nombre, cantidad:i.cantidad, unidad:i.unidad, precio: parseFloat(precioInput.value)});
+        });
       });
-    });
-    reporte += "\n";
+      seleccion[matricula].push(menuData);
+    }
   });
 
-  alert(reporte); // O aquí puedes descargar como txt o PDF si quieres
+  localStorage.setItem('seleccion', JSON.stringify(seleccion));
+  alert('Selección guardada correctamente');
 }
 
-window.onload = cargarMenus;
+function generarReporte() {
+  const matricula = document.getElementById('matricula').value.trim();
+  if (!matricula) { alert('Ingresa la matrícula'); return; }
+  let seleccion = JSON.parse(localStorage.getItem('seleccion')) || {};
+  const reportContainer = document.getElementById('reporteContainer');
+  reportContainer.innerHTML = '';
+
+  if (!seleccion[matricula] || seleccion[matricula].length === 0) { reportContainer.innerHTML = '<p>No hay menús seleccionados</p>'; return; }
+
+  // Generar totales por semana
+  let semanas = {};
+  seleccion[matricula].forEach(m => {
+    if (!semanas[m.semana]) semanas[m.semana] = {};
+    m.ingredientes.forEach(i => {
+      if (!semanas[m.semana][i.nombre]) semanas[m.semana][i.nombre] = {cantidad:0, unidad:i.unidad, precio:0};
+      semanas[m.semana][i.nombre].cantidad += i.cantidad;
+      semanas[m.semana][i.nombre].precio += i.precio * i.cantidad;
+    });
+  });
+
+  for (const s in semanas) {
+    let html = `<h2>Semana ${s}</h2><table><tr><th>Ingrediente</th><th>Total Cantidad</th><th>Unidad</th><th>Total Precio</th></tr>`;
+    for (const i in semanas[s]) {
+      html += `<tr><td>${i}</td><td>${semanas[s][i].cantidad.toFixed(3)}</td><td>${semanas[s][i].unidad}</td><td>$${semanas[s][i].precio.toFixed(2)}</td></tr>`;
+    }
+    html += '</table>';
+    reportContainer.innerHTML += html;
+  }
+}
+
+renderMenus();
 </script>
 </body>
 </html>
-
-
-
