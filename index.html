@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Recetario Escolar - App (Final)</title>
+<title>Recetario Escolar - Gasto Total Semana</title>
 <style>
   :root{--accent:#2563eb}
   body{font-family:Inter, Arial, sans-serif;margin:18px;color:#111}
@@ -25,8 +25,8 @@
 </style>
 </head>
 <body>
-<h1>Recetario Escolar — Gestión final</h1>
-<p class="muted">App local (guarda todo en Local Storage). Menús agrupados 4 por semana. Puedes elegir cualquier menú en cualquier día; al guardar indicas a qué semana pertenece ese día para generar reportes semanales.</p>
+<h1>Recetario Escolar — Gasto Total Semana</h1>
+<p class="muted">App local (guarda todo en Local Storage). Solo se mostrará el gasto total por semana.</p>
 
 <div class="grid">
   <div class="card">
@@ -38,12 +38,12 @@
       </div>
     </div>
 
-    <p class="muted small">Ingresa el <strong>precio por unidad</strong> (ej: precio por Kg, L, paquete o pza según unidad mostrada). Guarda para la semana seleccionada.</p>
+    <p class="muted small">Ingresa el <strong>precio por unidad</strong> (Kg, L, paquete, pza, etc.) para los ingredientes.</p>
 
     <div style="overflow:auto;max-height:340px;margin-top:8px">
       <table id="preciosTable">
         <thead>
-          <tr><th>Ingrediente</th><th>Clase</th><th>Unidad</th><th>Precio (por unidad)</th></tr>
+          <tr><th>Ingrediente</th><th>Clase</th><th>Unidad</th><th>Precio</th></tr>
         </thead>
         <tbody></tbody>
       </table>
@@ -59,8 +59,8 @@
 
   <div class="card split">
     <div>
-      <h2 style="margin:0">2) Menús (bloques) — 20 incluidos</h2>
-      <p class="muted small">Cada bloque corresponde a un menú del día; 4 menús por semana.</p>
+      <h2 style="margin:0">2) Menús — 20 incluidos</h2>
+      <p class="muted small">Selecciona menús para cada día.</p>
       <div style="max-height:420px;overflow:auto;margin-top:8px">
         <ul id="menusList" class="small muted"></ul>
       </div>
@@ -77,10 +77,10 @@
           <option value="viernes">Viernes</option>
         </select>
       </label>
-      <label>Semana (asignar este día a): <input id="diaSemana" type="number" min="1" value="1" style="width:80px"></label>
+      <label>Semana: <input id="diaSemana" type="number" min="1" value="1" style="width:80px"></label>
 
       <div style="margin-top:8px">
-        <label>Matrícula (número o IDs coma): <input id="matriculaInput" type="text" class="wide" placeholder="ej: 28 o 101,102,103"></label>
+        <label>Matrícula (número o IDs): <input id="matriculaInput" type="text" class="wide" placeholder="ej: 28 o 101,102,103"></label>
       </div>
 
       <div style="margin-top:8px">
@@ -91,14 +91,13 @@
       <div style="margin-top:8px" class="row">
         <button class="btn" id="guardarDia">Guardar día</button>
         <button class="btn secondary" id="cargarDia">Cargar día</button>
-        <button class="btn secondary" id="verPlanSemana">Ver plan de semana</button>
       </div>
     </div>
   </div>
 
   <div class="card">
-    <h2 style="margin:0">4) Reporte</h2>
-    <p class="muted small">Genera reporte por semana — se suman los días cuyo campo "Semana" coincide con la semana seleccionada.</p>
+    <h2 style="margin:0">4) Reporte de gasto total</h2>
+    <p class="muted small">Se mostrará únicamente el gasto total por semana.</p>
     <div style="display:flex;gap:8px;margin-top:8px">
       <button class="btn" id="generarReporte">Generar reporte</button>
       <button class="btn" id="exportPDF">Exportar PDF</button>
@@ -109,183 +108,40 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <script>
-/* ---------------------- Menús: 20 bloques (cada bloque = 1 menú) ---------------------- */
+/* ---------------------- Menús: 20 bloques ---------------------- */
 const MENUS = [
-  {id:1, name:'MENÚ 1', items:[
-    {i:'Pan integral', clase:'Cereales', cantidad:0.1, unidad:'Paquetes'},
-    {i:'Huevo', clase:'Proteínas', cantidad:0.035, unidad:'Kg'},
-    {i:'Espinaca', clase:'Vegetales', cantidad:0.03, unidad:'Kg'},
-    {i:'Cebolla', clase:'Vegetales', cantidad:0.0005, unidad:'Kg'},
-    {i:'Aceite', clase:'Aceites', cantidad:0.0003, unidad:'L'},
-    {i:'Queso panela', clase:'Lácteos', cantidad:0.012, unidad:'Kg'},
-    {i:'Lechuga', clase:'Vegetales', cantidad:0.005, unidad:'Kg'},
-    {i:'Jitomate', clase:'Vegetales', cantidad:0.005, unidad:'Kg'},
-    {i:'Zanahoria', clase:'Vegetales', cantidad:0.025, unidad:'Kg'},
-    {i:'Piña', clase:'Frutas', cantidad:0.08, unidad:'Kg'},
-    {i:'Cacahuate', clase:'Semillas', cantidad:0.005, unidad:'Kg'},
-    {i:'Yogurth natural', clase:'Lácteos', cantidad:0.006, unidad:'L'},
-    {i:'Agua natural', clase:'Bebidas', cantidad:0.0125, unidad:'Garrafones'},
-    {i:'Opción tortilla de maíz', clase:'Cereales', cantidad:0.06, unidad:'Kg'}
-  ]},
-  {id:2, name:'MENÚ 2', items:[
-    {i:'Bistec de res', clase:'Proteínas', cantidad:0.0275, unidad:'Kg'},
-    {i:'Nopal', clase:'Vegetales', cantidad:0.05, unidad:'Kg'},
-    {i:'Papa', clase:'Vegetales', cantidad:0.04, unidad:'Kg'},
-    {i:'Queso panela', clase:'Lácteos', cantidad:0.01, unidad:'Kg'},
-    {i:'Jitomate', clase:'Vegetales', cantidad:0.03, unidad:'Kg'},
-    {i:'Chile guajillo sin picante', clase:'Otros', cantidad:0.0003, unidad:'Kg'},
-    {i:'Ajo', clase:'Vegetales', cantidad:0.0003, unidad:'Kg'},
-    {i:'Cebolla', clase:'Vegetales', cantidad:0.0003, unidad:'Kg'},
-    {i:'Aceite', clase:'Aceites', cantidad:0.0005, unidad:'L'},
-    {i:'Sal', clase:'Otros', cantidad:0.00002, unidad:'Kg'},
-    {i:'Frijol', clase:'Proteínas', cantidad:0.0175, unidad:'Kg'},
-    {i:'Plátano', clase:'Frutas', cantidad:0.06, unidad:'Kg'},
-    {i:'Melón', clase:'Frutas', cantidad:0.07, unidad:'Kg'},
-    {i:'Semillas de girasol', clase:'Semillas', cantidad:0.003, unidad:'Kg'}
-  ]},
-  {id:3, name:'MENÚ 3', items:[
-    {i:'Harina integral de trigo', clase:'Cereales', cantidad:0.016, unidad:'Kg'},
-    {i:'Hojuelas de avena', clase:'Cereales', cantidad:0.011, unidad:'Kg'},
-    {i:'Huevo', clase:'Proteínas', cantidad:0.022, unidad:'Kg'},
-    {i:'Plátano', clase:'Frutas', cantidad:0.05, unidad:'Kg'},
-    {i:'Aceite', clase:'Aceites', cantidad:0.001, unidad:'L'},
-    {i:'Esencia de vainilla', clase:'Otros', cantidad:0.00025, unidad:'L'},
-    {i:'Zanahoria', clase:'Vegetales', cantidad:0.035, unidad:'Kg'},
-    {i:'Jícama', clase:'Vegetales', cantidad:0.035, unidad:'Kg'}
-  ]},
-  {id:4, name:'MENÚ 4', items:[
-    {i:'Pechuga de pollo', clase:'Proteínas', cantidad:0.0475, unidad:'Kg'},
-    {i:'Ajo', clase:'Vegetales', cantidad:0.0003, unidad:'Kg'},
-    {i:'Cebolla', clase:'Vegetales', cantidad:0.0003, unidad:'Kg'},
-    {i:'Huevo', clase:'Proteínas', cantidad:0.015, unidad:'Kg'},
-    {i:'Calabacita', clase:'Vegetales', cantidad:0.05, unidad:'Kg'},
-    {i:'Papa', clase:'Vegetales', cantidad:0.025, unidad:'Kg'},
-    {i:'Aceite', clase:'Aceites', cantidad:0.0005, unidad:'L'},
-    {i:'Sal', clase:'Otros', cantidad:0.00002, unidad:'Kg'},
-    {i:'Tortilla de maíz', clase:'Cereales', cantidad:0.03, unidad:'Kg'},
-    {i:'Bolillo integral', clase:'Cereales', cantidad:0.5, unidad:'PZAS'}
-  ]},
-  {id:5, name:'MENÚ 5', items:[
-    {i:'Tortilla de maíz', clase:'Cereales', cantidad:0.06, unidad:'Kg'},
-    {i:'Alverjón refrito', clase:'Proteínas', cantidad:0.009, unidad:'Kg'},
-    {i:'Calabacita', clase:'Vegetales', cantidad:0.045, unidad:'Kg'},
-    {i:'Zanahoria', clase:'Vegetales', cantidad:0.025, unidad:'Kg'},
-    {i:'Queso panela', clase:'Lácteos', cantidad:0.009, unidad:'Kg'},
-    {i:'Cebolla', clase:'Vegetales', cantidad:0.0003, unidad:'Kg'}
-  ]},
-  {id:6, name:'MENÚ 6', items:[
-    {i:'Pechuga de pollo', clase:'Proteínas', cantidad:0.03, unidad:'Kg'},
-    {i:'Cebolla', clase:'Vegetales', cantidad:0.0003, unidad:'Kg'},
-    {i:'Queso fresco', clase:'Lácteos', cantidad:0.015, unidad:'Kg'},
-    {i:'Lechuga', clase:'Vegetales', cantidad:0.03, unidad:'Kg'},
-    {i:'Jitomate', clase:'Vegetales', cantidad:0.025, unidad:'Kg'},
-    {i:'Tostada horneada', clase:'Cereales', cantidad:0.05, unidad:'Paquetes'}
-  ]},
-  {id:7, name:'MENÚ 7', items:[
-    {i:'Garbanzo', clase:'Proteínas', cantidad:0.023, unidad:'Kg'},
-    {i:'Arroz', clase:'Cereales', cantidad:0.003, unidad:'Kg'},
-    {i:'Zanahoria', clase:'Vegetales', cantidad:0.02, unidad:'Kg'},
-    {i:'Jícama', clase:'Frutas', cantidad:0.07, unidad:'Kg'},
-    {i:'Piña', clase:'Frutas', cantidad:0.15, unidad:'Kg'},
-    {i:'Cacahuate triturado', clase:'Semillas', cantidad:0.007, unidad:'Kg'}
-  ]},
-  {id:8, name:'MENÚ 8', items:[
-    {i:'Huevo', clase:'Proteínas', cantidad:0.06, unidad:'Kg'},
-    {i:'Jitomate', clase:'Vegetales', cantidad:0.025, unidad:'Kg'},
-    {i:'Aceite', clase:'Aceites', cantidad:0.0005, unidad:'L'},
-    {i:'Frijol', clase:'Proteínas', cantidad:0.0175, unidad:'Kg'},
-    {i:'Melón', clase:'Frutas', cantidad:0.11, unidad:'Kg'},
-    {i:'Amaranto', clase:'Otros', cantidad:0.005, unidad:'Kg'}
-  ]},
-  {id:9, name:'MENÚ 9', items:[
-    {i:'Lenteja', clase:'Proteínas', cantidad:0.037, unidad:'Kg'},
-    {i:'Molida de res', clase:'Proteínas', cantidad:0.008, unidad:'Kg'},
-    {i:'Zanahoria', clase:'Vegetales', cantidad:0.05, unidad:'Kg'},
-    {i:'Chícharo', clase:'Vegetales', cantidad:0.02, unidad:'Kg'},
-    {i:'Arroz', clase:'Cereales', cantidad:0.008, unidad:'Kg'}
-  ]},
-  {id:10, name:'MENÚ 10', items:[
-    {i:'Bolillo integral', clase:'Cereales', cantidad:0.5, unidad:'PZAS'},
-    {i:'Queso panela', clase:'Lácteos', cantidad:0.025, unidad:'Kg'},
-    {i:'Frijol', clase:'Proteínas', cantidad:0.02, unidad:'Kg'},
-    {i:'Jitomate', clase:'Vegetales', cantidad:0.018, unidad:'Kg'},
-    {i:'Cilantro', clase:'Vegetales', cantidad:0.001, unidad:'Kg'}
-  ]},
-  {id:11, name:'MENÚ 11', items:[
-    {i:'Tortilla de maíz', clase:'Cereales', cantidad:0.03, unidad:'Kg'},
-    {i:'Pechuga de pollo', clase:'Proteínas', cantidad:0.025, unidad:'Kg'},
-    {i:'Espinaca', clase:'Vegetales', cantidad:0.037, unidad:'Kg'},
-    {i:'Queso oaxaca', clase:'Lácteos', cantidad:0.009, unidad:'Kg'}
-  ]},
-  {id:12, name:'MENÚ 12', items:[
-    {i:'Calabacita', clase:'Vegetales', cantidad:0.072, unidad:'Kg'},
-    {i:'Granos de elote', clase:'Vegetales', cantidad:0.01, unidad:'Kg'},
-    {i:'Queso fresco', clase:'Lácteos', cantidad:0.005, unidad:'Kg'},
-    {i:'Pechuga de pollo', clase:'Proteínas', cantidad:0.025, unidad:'Kg'}
-  ]},
-  {id:13, name:'MENÚ 13', items:[
-    {i:'Tortilla de maíz', clase:'Cereales', cantidad:0.06, unidad:'Kg'},
-    {i:'Pechuga de pollo', clase:'Proteínas', cantidad:0.028, unidad:'Kg'},
-    {i:'Queso panela', clase:'Lácteos', cantidad:0.0175, unidad:'Kg'},
-    {i:'Arroz', clase:'Cereales', cantidad:0.01, unidad:'Kg'}
-  ]},
-  {id:14, name:'MENÚ 14', items:[
-    {i:'Huevo', clase:'Proteínas', cantidad:0.05, unidad:'Kg'},
-    {i:'Ejote', clase:'Vegetales', cantidad:0.03, unidad:'Kg'},
-    {i:'Lentejas', clase:'Proteínas', cantidad:0.021, unidad:'Kg'},
-    {i:'Melón', clase:'Frutas', cantidad:0.12, unidad:'Kg'}
-  ]},
-  {id:15, name:'MENÚ 15', items:[
-    {i:'Zanahoria', clase:'Vegetales', cantidad:0.045, unidad:'Kg'},
-    {i:'Pechuga de pollo', clase:'Proteínas', cantidad:0.03, unidad:'Kg'},
-    {i:'Chícharo', clase:'Vegetales', cantidad:0.01, unidad:'Kg'},
-    {i:'Frijol', clase:'Proteínas', cantidad:0.0175, unidad:'Kg'},
-    {i:'Guayaba', clase:'Frutas', cantidad:0.07, unidad:'Kg'}
-  ]},
-  {id:16, name:'MENÚ 16', items:[
-    {i:'Harina de maíz nixtamalizado', clase:'Cereales', cantidad:0.0315, unidad:'Kg'},
-    {i:'Ajonjolí', clase:'Semillas', cantidad:0.0045, unidad:'Kg'},
-    {i:'Nopal crudo', clase:'Vegetales', cantidad:0.018, unidad:'Kg'},
-    {i:'Queso panela', clase:'Lácteos', cantidad:0.016, unidad:'Kg'}
-  ]},
-  {id:17, name:'MENÚ 17', items:[
-    {i:'Pasta integral', clase:'Cereales', cantidad:0.006, unidad:'Kg'},
-    {i:'Pechuga de pollo', clase:'Proteínas', cantidad:0.033, unidad:'Kg'},
-    {i:'Zanahoria', clase:'Vegetales', cantidad:0.037, unidad:'Kg'}
-  ]},
-  {id:18, name:'MENÚ 18', items:[
-    {i:'Tortilla de maíz', clase:'Cereales', cantidad:0.06, unidad:'Kg'},
-    {i:'Pechuga de pollo', clase:'Proteínas', cantidad:0.015, unidad:'Kg'},
-    {i:'Queso fresco', clase:'Lácteos', cantidad:0.005, unidad:'Kg'},
-    {i:'Champiñón', clase:'Vegetales', cantidad:0.015, unidad:'Kg'}
-  ]},
-  {id:19, name:'MENÚ 19', items:[
-    {i:'Carne molida', clase:'Proteínas', cantidad:0.03, unidad:'Kg'},
-    {i:'Papa', clase:'Vegetales', cantidad:0.042, unidad:'Kg'},
-    {i:'Brócoli', clase:'Vegetales', cantidad:0.017, unidad:'Kg'}
-  ]},
-  {id:20, name:'MENÚ 20', items:[
-    {i:'Huevo', clase:'Proteínas', cantidad:0.025, unidad:'Kg'},
-    {i:'Nopal', clase:'Vegetales', cantidad:0.025, unidad:'Kg'},
-    {i:'Papa', clase:'Vegetales', cantidad:0.026, unidad:'Kg'},
-    {i:'Alubias', clase:'Proteínas', cantidad:0.004, unidad:'Kg'}
-  ]}
+  {id:1,name:'MENÚ 1',items:[{i:'Pan integral',clase:'Cereales',cantidad:0.1,unidad:'Paquetes'},{i:'Huevo',clase:'Proteínas',cantidad:0.035,unidad:'Kg'},{i:'Espinaca',clase:'Vegetales',cantidad:0.03,unidad:'Kg'},{i:'Cebolla',clase:'Vegetales',cantidad:0.0005,unidad:'Kg'},{i:'Aceite',clase:'Aceites',cantidad:0.0003,unidad:'L'},{i:'Queso panela',clase:'Lácteos',cantidad:0.012,unidad:'Kg'},{i:'Lechuga',clase:'Vegetales',cantidad:0.005,unidad:'Kg'},{i:'Jitomate',clase:'Vegetales',cantidad:0.005,unidad:'Kg'},{i:'Zanahoria',clase:'Vegetales',cantidad:0.025,unidad:'Kg'},{i:'Piña',clase:'Frutas',cantidad:0.08,unidad:'Kg'},{i:'Cacahuate',clase:'Semillas',cantidad:0.005,unidad:'Kg'},{i:'Yogurth natural',clase:'Lácteos',cantidad:0.006,unidad:'L'},{i:'Agua natural',clase:'Bebidas',cantidad:0.0125,unidad:'Garrafones'},{i:'Opción tortilla de maíz',clase:'Cereales',cantidad:0.06,unidad:'Kg'}]},
+  {id:2,name:'MENÚ 2',items:[{i:'Bistec de res',clase:'Proteínas',cantidad:0.0275,unidad:'Kg'},{i:'Nopal',clase:'Vegetales',cantidad:0.05,unidad:'Kg'},{i:'Papa',clase:'Vegetales',cantidad:0.04,unidad:'Kg'},{i:'Queso panela',clase:'Lácteos',cantidad:0.01,unidad:'Kg'},{i:'Jitomate',clase:'Vegetales',cantidad:0.03,unidad:'Kg'},{i:'Chile guajillo sin picante',clase:'Otros',cantidad:0.0003,unidad:'Kg'},{i:'Ajo',clase:'Vegetales',cantidad:0.0003,unidad:'Kg'},{i:'Cebolla',clase:'Vegetales',cantidad:0.0003,unidad:'Kg'},{i:'Aceite',clase:'Aceites',cantidad:0.0005,unidad:'L'},{i:'Sal',clase:'Otros',cantidad:0.00002,unidad:'Kg'},{i:'Frijol',clase:'Proteínas',cantidad:0.0175,unidad:'Kg'},{i:'Plátano',clase:'Frutas',cantidad:0.06,unidad:'Kg'},{i:'Melón',clase:'Frutas',cantidad:0.07,unidad:'Kg'},{i:'Semillas de girasol',clase:'Semillas',cantidad:0.003,unidad:'Kg'}]},
+  {id:3,name:'MENÚ 3',items:[{i:'Harina integral de trigo',clase:'Cereales',cantidad:0.016,unidad:'Kg'},{i:'Hojuelas de avena',clase:'Cereales',cantidad:0.011,unidad:'Kg'},{i:'Huevo',clase:'Proteínas',cantidad:0.022,unidad:'Kg'},{i:'Plátano',clase:'Frutas',cantidad:0.05,unidad:'Kg'},{i:'Aceite',clase:'Aceites',cantidad:0.001,unidad:'L'},{i:'Esencia de vainilla',clase:'Otros',cantidad:0.00025,unidad:'L'},{i:'Zanahoria',clase:'Vegetales',cantidad:0.035,unidad:'Kg'},{i:'Jícama',clase:'Vegetales',cantidad:0.035,unidad:'Kg'}]},
+  {id:4,name:'MENÚ 4',items:[{i:'Pechuga de pollo',clase:'Proteínas',cantidad:0.0475,unidad:'Kg'},{i:'Ajo',clase:'Vegetales',cantidad:0.0003,unidad:'Kg'},{i:'Cebolla',clase:'Vegetales',cantidad:0.0003,unidad:'Kg'},{i:'Huevo',clase:'Proteínas',cantidad:0.015,unidad:'Kg'},{i:'Calabacita',clase:'Vegetales',cantidad:0.05,unidad:'Kg'},{i:'Papa',clase:'Vegetales',cantidad:0.025,unidad:'Kg'},{i:'Aceite',clase:'Aceites',cantidad:0.0005,unidad:'L'},{i:'Sal',clase:'Otros',cantidad:0.00002,unidad:'Kg'},{i:'Tortilla de maíz',clase:'Cereales',cantidad:0.03,unidad:'Kg'},{i:'Bolillo integral',clase:'Cereales',cantidad:0.5,unidad:'PZAS'}]},
+  {id:5,name:'MENÚ 5',items:[{i:'Tortilla de maíz',clase:'Cereales',cantidad:0.06,unidad:'Kg'},{i:'Alverjón refrito',clase:'Proteínas',cantidad:0.009,unidad:'Kg'},{i:'Calabacita',clase:'Vegetales',cantidad:0.045,unidad:'Kg'},{i:'Zanahoria',clase:'Vegetales',cantidad:0.025,unidad:'Kg'},{i:'Queso panela',clase:'Lácteos',cantidad:0.009,unidad:'Kg'},{i:'Cebolla',clase:'Vegetales',cantidad:0.0003,unidad:'Kg'}]},
+  {id:6,name:'MENÚ 6',items:[{i:'Pechuga de pollo',clase:'Proteínas',cantidad:0.03,unidad:'Kg'},{i:'Cebolla',clase:'Vegetales',cantidad:0.0003,unidad:'Kg'},{i:'Queso fresco',clase:'Lácteos',cantidad:0.015,unidad:'Kg'},{i:'Lechuga',clase:'Vegetales',cantidad:0.03,unidad:'Kg'},{i:'Jitomate',clase:'Vegetales',cantidad:0.025,unidad:'Kg'},{i:'Tostada horneada',clase:'Cereales',cantidad:0.05,unidad:'Paquetes'}]},
+  {id:7,name:'MENÚ 7',items:[{i:'Garbanzo',clase:'Proteínas',cantidad:0.023,unidad:'Kg'},{i:'Arroz',clase:'Cereales',cantidad:0.003,unidad:'Kg'},{i:'Zanahoria',clase:'Vegetales',cantidad:0.02,unidad:'Kg'},{i:'Jícama',clase:'Frutas',cantidad:0.07,unidad:'Kg'},{i:'Piña',clase:'Frutas',cantidad:0.15,unidad:'Kg'},{i:'Cacahuate triturado',clase:'Semillas',cantidad:0.007,unidad:'Kg'}]},
+  {id:8,name:'MENÚ 8',items:[{i:'Huevo',clase:'Proteínas',cantidad:0.06,unidad:'Kg'},{i:'Jitomate',clase:'Vegetales',cantidad:0.025,unidad:'Kg'},{i:'Aceite',clase:'Aceites',cantidad:0.0005,unidad:'L'},{i:'Frijol',clase:'Proteínas',cantidad:0.0175,unidad:'Kg'},{i:'Melón',clase:'Frutas',cantidad:0.11,unidad:'Kg'},{i:'Amaranto',clase:'Otros',cantidad:0.005,unidad:'Kg'}]},
+  {id:9,name:'MENÚ 9',items:[{i:'Lenteja',clase:'Proteínas',cantidad:0.037,unidad:'Kg'},{i:'Molida de res',clase:'Proteínas',cantidad:0.008,unidad:'Kg'},{i:'Zanahoria',clase:'Vegetales',cantidad:0.05,unidad:'Kg'},{i:'Chícharo',clase:'Vegetales',cantidad:0.02,unidad:'Kg'},{i:'Arroz',clase:'Cereales',cantidad:0.008,unidad:'Kg'}]},
+  {id:10,name:'MENÚ 10',items:[{i:'Bolillo integral',clase:'Cereales',cantidad:0.5,unidad:'PZAS'},{i:'Queso panela',clase:'Lácteos',cantidad:0.025,unidad:'Kg'},{i:'Frijol',clase:'Proteínas',cantidad:0.02,unidad:'Kg'},{i:'Jitomate',clase:'Vegetales',cantidad:0.018,unidad:'Kg'},{i:'Cilantro',clase:'Vegetales',cantidad:0.001,unidad:'Kg'}]},
+  {id:11,name:'MENÚ 11',items:[{i:'Tortilla de maíz',clase:'Cereales',cantidad:0.03,unidad:'Kg'},{i:'Pechuga de pollo',clase:'Proteínas',cantidad:0.025,unidad:'Kg'},{i:'Espinaca',clase:'Vegetales',cantidad:0.037,unidad:'Kg'},{i:'Queso oaxaca',clase:'Lácteos',cantidad:0.009,unidad:'Kg'}]},
+  {id:12,name:'MENÚ 12',items:[{i:'Calabacita',clase:'Vegetales',cantidad:0.072,unidad:'Kg'},{i:'Granos de elote',clase:'Vegetales',cantidad:0.01,unidad:'Kg'},{i:'Queso fresco',clase:'Lácteos',cantidad:0.005,unidad:'Kg'},{i:'Pechuga de pollo',clase:'Proteínas',cantidad:0.025,unidad:'Kg'}]},
+  {id:13,name:'MENÚ 13',items:[{i:'Tortilla de maíz',clase:'Cereales',cantidad:0.06,unidad:'Kg'},{i:'Pechuga de pollo',clase:'Proteínas',cantidad:0.028,unidad:'Kg'},{i:'Queso panela',clase:'Lácteos',cantidad:0.0175,unidad:'Kg'},{i:'Arroz',clase:'Cereales',cantidad:0.01,unidad:'Kg'}]},
+  {id:14,name:'MENÚ 14',items:[{i:'Huevo',clase:'Proteínas',cantidad:0.05,unidad:'Kg'},{i:'Ejote',clase:'Vegetales',cantidad:0.03,unidad:'Kg'},{i:'Lentejas',clase:'Proteínas',cantidad:0.021,unidad:'Kg'},{i:'Melón',clase:'Frutas',cantidad:0.12,unidad:'Kg'}]},
+  {id:15,name:'MENÚ 15',items:[{i:'Zanahoria',clase:'Vegetales',cantidad:0.045,unidad:'Kg'},{i:'Pechuga de pollo',clase:'Proteínas',cantidad:0.03,unidad:'Kg'},{i:'Chícharo',clase:'Vegetales',cantidad:0.01,unidad:'Kg'},{i:'Frijol',clase:'Proteínas',cantidad:0.0175,unidad:'Kg'},{i:'Guayaba',clase:'Frutas',cantidad:0.07,unidad:'Kg'}]},
+  {id:16,name:'MENÚ 16',items:[{i:'Harina de maíz nixtamalizado',clase:'Cereales',cantidad:0.0315,unidad:'Kg'},{i:'Ajonjolí',clase:'Semillas',cantidad:0.0045,unidad:'Kg'},{i:'Nopal crudo',clase:'Vegetales',cantidad:0.018,unidad:'Kg'},{i:'Queso panela',clase:'Lácteos',cantidad:0.016,unidad:'Kg'}]},
+  {id:17,name:'MENÚ 17',items:[{i:'Pasta integral',clase:'Cereales',cantidad:0.006,unidad:'Kg'},{i:'Pechuga de pollo',clase:'Proteínas',cantidad:0.033,unidad:'Kg'},{i:'Zanahoria',clase:'Vegetales',cantidad:0.037,unidad:'Kg'}]},
+  {id:18,name:'MENÚ 18',items:[{i:'Tortilla de maíz',clase:'Cereales',cantidad:0.06,unidad:'Kg'},{i:'Pechuga de pollo',clase:'Proteínas',cantidad:0.015,unidad:'Kg'},{i:'Queso fresco',clase:'Lácteos',cantidad:0.005,unidad:'Kg'},{i:'Champiñón',clase:'Vegetales',cantidad:0.015,unidad:'Kg'}]},
+  {id:19,name:'MENÚ 19',items:[{i:'Carne molida',clase:'Proteínas',cantidad:0.03,unidad:'Kg'},{i:'Papa',clase:'Vegetales',cantidad:0.042,unidad:'Kg'},{i:'Brócoli',clase:'Vegetales',cantidad:0.017,unidad:'Kg'}]},
+  {id:20,name:'MENÚ 20',items:[{i:'Huevo',clase:'Proteínas',cantidad:0.025,unidad:'Kg'},{i:'Nopal',clase:'Vegetales',cantidad:0.025,unidad:'Kg'},{i:'Papa',clase:'Vegetales',cantidad:0.026,unidad:'Kg'},{i:'Alubias',clase:'Proteínas',cantidad:0.004,unidad:'Kg'}]}
 ];
 
-/* ---------------------- Estado y Local Storage keys ---------------------- */
 const LS_KEYS = { PRECIOS:'rec_precios', PLAN:'rec_plan' };
 let autoSave = false;
 
-/* ---------------------- Utilidades ---------------------- */
 function uniqueIngredients(){
   const map = new Map();
   MENUS.forEach(m=> m.items.forEach(it=>{ if(!map.has(it.i)) map.set(it.i,{ingrediente:it.i,clase:it.clase,unidad:it.unidad}); }));
   return Array.from(map.values());
 }
 
-/* ---------------------- Render menus and menuSelect ---------------------- */
 function initUI(){
   const menusList = document.getElementById('menusList');
   const menuSelect = document.getElementById('menuSelect');
@@ -293,12 +149,11 @@ function initUI(){
   menuSelect.innerHTML = '';
   MENUS.forEach(m=>{
     const li = document.createElement('li'); li.textContent = `${m.name} — ${m.items.length} insumos`; menusList.appendChild(li);
-    const opt = document.createElement('option'); opt.value = m.id; opt.textContent = `${m.name}`; menuSelect.appendChild(opt);
+    const opt = document.createElement('option'); opt.value = m.id; opt.textContent = m.name; menuSelect.appendChild(opt);
   });
   renderPreciosTable();
 }
 
-/* ---------------------- Precios handling ---------------------- */
 function renderPreciosTable(){
   const tbody = document.querySelector('#preciosTable tbody'); tbody.innerHTML = '';
   const ingredientes = uniqueIngredients();
@@ -307,7 +162,7 @@ function renderPreciosTable(){
   const semanaPre = preciosObj[`sem_${semana}`] || {};
   ingredientes.forEach(r=>{
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${r.ingrediente}</td><td>${r.clase}</td><td>${r.unidad}</td><td><input data-ing="${r.ingrediente}" type="number" step="0.01" min="0" value="${(semanaPre[r.ingrediente]!==undefined)? semanaPre[r.ingrediente] : ''}"></td>`;
+    tr.innerHTML = `<td>${r.ingrediente}</td><td>${r.clase}</td><td>${r.unidad}</td><td><input data-ing="${r.ingrediente}" type="number" step="0.01" min="0" value="${semanaPre[r.ingrediente] || ''}"></td>`;
     tbody.appendChild(tr);
   });
   tbody.querySelectorAll('input[data-ing]').forEach(inp=> inp.addEventListener('input', ()=>{ if(autoSave) guardarPrecios(); }));
@@ -323,7 +178,6 @@ function guardarPrecios(){
   alert('Precios guardados (semana '+semana+')');
 }
 
-/* ---------------------- Plan (dias) handling ---------------------- */
 function guardarDia(){
   const dia = document.getElementById('diaSelect').value;
   const semanaAsignada = parseInt(document.getElementById('diaSemana').value) || 1;
@@ -351,27 +205,13 @@ function cargarDia(){
   alert('Cargado '+dia+' (semana '+semanaAsignada+')');
 }
 
-function verPlanSemana(){
-  const semana = parseInt(document.getElementById('diaSemana').value) || 1;
-  const plan = JSON.parse(localStorage.getItem(LS_KEYS.PLAN) || '{}');
-  const rows = [];
-  ['lunes','martes','miercoles','jueves','viernes'].forEach(d=>{ const key = d+'_'+semana; if(plan[key]) rows.push({dia:d, data:plan[key]}); });
-  if(rows.length===0) return alert('No hay menús planificados para la semana '+semana);
-  let html = '<table><thead><tr><th>Día</th><th>Menús</th><th>Matrícula</th></tr></thead><tbody>';
-  rows.forEach(r=>{ const menuNames = r.data.menus.map(id=> MENUS.find(m=>m.id===id)?.name || id).join('; '); html += `<tr><td>${r.dia}</td><td>${menuNames}</td><td>${Array.isArray(r.data.matricula)? r.data.matricula.length : r.data.matricula}</td></tr>`; });
-  html += '</tbody></table>';
-  document.getElementById('reporteArea').innerHTML = html;
-}
-
-/* ---------------------- Report generation ---------------------- */
 function generarReporte(){
   const semana = parseInt(document.getElementById('semanaInput').value) || 1;
   const plan = JSON.parse(localStorage.getItem(LS_KEYS.PLAN) || '{}');
   const precios = JSON.parse(localStorage.getItem(LS_KEYS.PRECIOS) || '{}');
   const porSemana = precios[`sem_${semana}`] || {};
 
-  // collect totals: ingredient -> {clase, unidad, porDia:{ lunes:0 ...}, total}
-  const totals = {};
+  let totalSemana = 0;
   ['lunes','martes','miercoles','jueves','viernes'].forEach(dia=>{
     const key = dia+'_'+semana;
     const obj = plan[key];
@@ -381,56 +221,25 @@ function generarReporte(){
       const menu = MENUS.find(m=>m.id===mid);
       if(!menu) return;
       menu.items.forEach(it=>{
-        if(!totals[it.i]) totals[it.i] = { clase: it.clase, unidad: it.unidad, porDia: {lunes:0,martes:0,miercoles:0,jueves:0,viernes:0}, total:0 };
         const add = it.cantidad * mat;
-        totals[it.i].porDia[dia] += add;
-        totals[it.i].total += add;
+        totalSemana += (porSemana[it.i]||0)*add;
       });
     });
   });
 
-  // group by class
-  const byClass = {};
-  Object.keys(totals).forEach(ing=>{
-    const rec = totals[ing];
-    const price = porSemana[ing] || 0;
-    const cost = price * rec.total;
-    if(!byClass[rec.clase]) byClass[rec.clase] = [];
-    byClass[rec.clase].push({ingrediente:ing, unidad:rec.unidad, porDia:rec.porDia, total:rec.total, precio:price, costo:cost});
-  });
-
-  // Build HTML report
-  let html = '<h3>Reporte Semana '+semana+'</h3>';
-  html += '<table><thead><tr><th>Clase</th><th>Insumo</th><th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th><th>Total sem</th><th>Unidad</th><th>Precio</th><th>Costo</th></tr></thead><tbody>';
-  let totalSemana = 0;
-  Object.keys(byClass).forEach(cl=>{
-    byClass[cl].forEach(r=>{
-      html += `<tr><td>${cl}</td><td>${r.ingrediente}</td>`;
-      ['lunes','martes','miercoles','jueves','viernes'].forEach(d=> html += `<td>${(r.porDia[d]||0).toFixed(4)}</td>`);
-      html += `<td>${r.total.toFixed(4)}</td><td>${r.unidad}</td><td>${r.precio.toFixed(2)}</td><td>${r.costo.toFixed(2)}</td></tr>`;
-      totalSemana += r.costo;
-    });
-  });
-  html += `<tr style="font-weight:bold"><td colspan="10">TOTAL SEMANA</td><td>${totalSemana.toFixed(2)}</td></tr>`;
-  html += '</tbody></table>';
-  document.getElementById('reporteArea').innerHTML = html;
+  document.getElementById('reporteArea').innerHTML = `<h3>Total gasto semana ${semana}: $${totalSemana.toFixed(2)}</h3>`;
 }
 
-/* ---------------------- PDF export ---------------------- */
 function exportPDF(){
-  const table = document.querySelector('#reporteArea table');
-  if(!table) return alert('Genera el reporte primero');
+  const content = document.getElementById('reporteArea').innerText;
+  if(!content) return alert('Genera el reporte primero');
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({orientation:'landscape'});
+  const doc = new jsPDF();
+  doc.text(content, 10, 10);
   const semana = document.getElementById('semanaInput').value;
-  doc.setFontSize(14); doc.text('Reporte Semana '+semana, 10, 12);
-  const headers = Array.from(table.querySelectorAll('thead th')).map(th=>th.textContent);
-  const rows = Array.from(table.querySelectorAll('tbody tr')).map(tr=> Array.from(tr.cells).map(td=>td.textContent));
-  doc.autoTable({ head: [headers], body: rows, startY: 18, styles:{fontSize:8} });
   doc.save('reporte_semana_'+semana+'.pdf');
 }
 
-/* ---------------------- Backup export/import ---------------------- */
 function exportBackup(){
   const data = { precios: JSON.parse(localStorage.getItem(LS_KEYS.PRECIOS)||'{}'), plan: JSON.parse(localStorage.getItem(LS_KEYS.PLAN)||'{}') };
   const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
@@ -456,20 +265,17 @@ function importBackup(){
   input.click();
 }
 
-/* ---------------------- Misc controls ---------------------- */
 document.getElementById('cargarSemana').addEventListener('click', renderPreciosTable);
 document.getElementById('guardarPrecios').addEventListener('click', guardarPrecios);
-document.getElementById('toggleAuto').addEventListener('click', ()=>{ autoSave=!autoSave; document.getElementById('toggleAuto').textContent = 'Auto-guardar: '+ (autoSave? 'ON':'OFF'); if(autoSave) guardarPrecios(); });
+document.getElementById('toggleAuto').addEventListener('click', ()=>{ autoSave=!autoSave; document.getElementById('toggleAuto').textContent='Auto-guardar: '+(autoSave?'ON':'OFF'); if(autoSave) guardarPrecios(); });
 document.getElementById('guardarDia').addEventListener('click', guardarDia);
 document.getElementById('cargarDia').addEventListener('click', cargarDia);
-document.getElementById('verPlanSemana').addEventListener('click', verPlanSemana);
 document.getElementById('generarReporte').addEventListener('click', generarReporte);
 document.getElementById('exportPDF').addEventListener('click', exportPDF);
 document.getElementById('limpiarDatos').addEventListener('click', ()=>{ if(confirm('Borrar todos los datos guardados?')){ localStorage.removeItem(LS_KEYS.PRECIOS); localStorage.removeItem(LS_KEYS.PLAN); document.getElementById('reporteArea').innerHTML=''; alert('Datos eliminados'); } });
 document.getElementById('exportBackup').addEventListener('click', exportBackup);
 document.getElementById('importBackup').addEventListener('click', importBackup);
 
-// init
 initUI();
 </script>
 </body>
