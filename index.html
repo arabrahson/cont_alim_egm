@@ -1,140 +1,215 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Control de Recetas - Reporte de Compras</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 30px;
-      background: #f7f7f7;
-    }
-    h1 {
-      text-align: center;
-      color: #3c5a3c;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      margin-bottom: 30px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: center;
-    }
-    th {
-      background-color: #d6e5d6;
-    }
-    .input-section {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .input-section input {
-      width: 80px;
-      padding: 5px;
-      text-align: center;
-      font-size: 16px;
-    }
-    .platillo {
-      background-color: #a4c3a2;
-      font-weight: bold;
-      text-align: left;
-    }
-    .total {
-      background-color: #f0f5f0;
-      font-weight: bold;
-    }
-    button {
-      background: #4CAF50;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      cursor: pointer;
-      border-radius: 6px;
-      font-size: 16px;
-    }
-    button:hover {
-      background: #45a049;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recetario Escolar</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; }
+  h2 { margin-top: 30px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  table, th, td { border: 1px solid #ccc; }
+  th, td { padding: 5px; text-align: center; }
+  select, input { margin: 5px; padding: 5px; }
+  .section { margin-bottom: 40px; }
+  .btn { padding: 8px 12px; margin-top: 10px; cursor: pointer; }
+</style>
 </head>
 <body>
+<h1>Recetario Escolar</h1>
 
-  <h1>Control de Recetas - Reporte de Compras</h1>
-
-  <div class="input-section">
-    <label for="matricula">Matrícula (personas): </label>
-    <input type="number" id="matricula" value="1" min="1">
-    <button onclick="calcularTotales()">Calcular Totales</button>
-  </div>
-
-  <table id="tabla-recetas">
+<div class="section">
+  <h2>1. Configuración de Semana y Precios</h2>
+  <label>Semana: <input type="number" id="semanaInput" min="1" value="1"></label>
+  <table id="preciosTable">
     <thead>
-      <tr>
-        <th>Platillo</th>
-        <th>Ingrediente</th>
-        <th>Cantidad por persona (g/ml)</th>
-        <th>Cantidad total a comprar</th>
-        <th>Unidad</th>
-      </tr>
+      <tr><th>Ingrediente</th><th>Clase</th><th>Precio por Kg/L/Pza</th></tr>
     </thead>
-    <tbody id="tabla-body">
-      <!-- Aquí se cargarán las recetas -->
-    </tbody>
+    <tbody></tbody>
   </table>
+  <button class="btn" id="guardarPrecios">Guardar Precios</button>
+</div>
 
-  <script>
-    // Datos base (puedes añadir las demás recetas aquí)
-    const recetas = [
-      { platillo: "SÁNDWICH O TACO DE HUEVO CON ESPINACA Y QUESO", ingrediente: "Pan integral", cantidad: 54, unidad: "Paquetes" },
-      { platillo: "", ingrediente: "Huevo", cantidad: 35, unidad: "Kg" },
-      { platillo: "", ingrediente: "Espinaca", cantidad: 30, unidad: "Kg" },
-      { platillo: "", ingrediente: "Cebolla", cantidad: 0.5, unidad: "Kg" },
-      { platillo: "", ingrediente: "Aceite", cantidad: 0.3, unidad: "L" },
-      { platillo: "", ingrediente: "Queso panela", cantidad: 12, unidad: "Kg" },
-      { platillo: "", ingrediente: "Lechuga", cantidad: 5, unidad: "Kg" },
-      { platillo: "", ingrediente: "Jitomate", cantidad: 5, unidad: "Kg" },
-      { platillo: "ENSALADA DULCE", ingrediente: "Zanahoria", cantidad: 25, unidad: "Kg" },
-      { platillo: "", ingrediente: "Piña", cantidad: 80, unidad: "Kg" },
-      { platillo: "", ingrediente: "Cacahuate", cantidad: 5, unidad: "Kg" },
-      { platillo: "", ingrediente: "Yogurth natural", cantidad: 6, unidad: "L" },
-      { platillo: "BEBIDA", ingrediente: "Agua natural", cantidad: 250, unidad: "Garrafones" },
-      { platillo: "", ingrediente: "Opción tortilla de maíz", cantidad: 60, unidad: "Kg" }
-    ];
+<div class="section">
+  <h2>2. Registro de Matrícula y Recetas por Día</h2>
+  <label>Día: 
+    <select id="diaSelect">
+      <option value="lunes">Lunes</option>
+      <option value="martes">Martes</option>
+      <option value="miercoles">Miércoles</option>
+      <option value="jueves">Jueves</option>
+      <option value="viernes">Viernes</option>
+    </select>
+  </label>
+  <label>Matrícula (coma separada): <input type="text" id="matriculaInput"></label>
+  <label>Recetas: 
+    <select id="recetaSelect" multiple size="5"></select>
+  </label>
+  <button class="btn" id="guardarDia">Guardar Día</button>
+</div>
 
-    // Generar tabla al cargar
-    window.onload = function() {
-      const tbody = document.getElementById('tabla-body');
-      recetas.forEach(r => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="platillo">${r.platillo}</td>
-          <td>${r.ingrediente}</td>
-          <td>${r.cantidad}</td>
-          <td class="total">0</td>
-          <td>${r.unidad}</td>
-        `;
-        tbody.appendChild(tr);
+<div class="section">
+  <h2>3. Reporte Semanal</h2>
+  <button class="btn" id="generarReporte">Generar Reporte</button>
+  <button class="btn" id="exportPDF">Exportar PDF</button>
+  <div id="reporteDiv" style="margin-top:20px;"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+// ---------------- Datos Iniciales ---------------- //
+const recetas = [
+  {
+    nombre: "Sándwich o taco de huevo con espinaca y queso",
+    clase: [
+      {ingrediente: "Pan integral", clase: "Cereal", cantidad: 0.1, unidad: "Paquetes"},
+      {ingrediente: "Huevo", clase: "Proteína", cantidad: 0.035, unidad: "Kg"},
+      {ingrediente: "Espinaca", clase: "Vegetal", cantidad: 0.03, unidad: "Kg"},
+      {ingrediente: "Cebolla", clase: "Vegetal", cantidad: 0.0005, unidad: "Kg"},
+      {ingrediente: "Aceite", clase: "Grasa", cantidad: 0.0003, unidad: "L"},
+      {ingrediente: "Queso panela", clase: "Lácteo", cantidad: 0.012, unidad: "Kg"},
+      {ingrediente: "Lechuga", clase: "Vegetal", cantidad: 0.005, unidad: "Kg"},
+      {ingrediente: "Jitomate", clase: "Vegetal", cantidad: 0.005, unidad: "Kg"}
+    ]
+  },
+  {
+    nombre: "Ensalada dulce",
+    clase: [
+      {ingrediente: "Zanahoria", clase: "Vegetal", cantidad: 0.025, unidad: "Kg"},
+      {ingrediente: "Piña", clase: "Fruta", cantidad: 0.08, unidad: "Kg"},
+      {ingrediente: "Cacahuate", clase: "Semilla", cantidad: 0.005, unidad: "Kg"},
+      {ingrediente: "Yogurth natural", clase: "Lácteo", cantidad: 0.006, unidad: "L"}
+    ]
+  },
+  {
+    nombre: "Agua natural",
+    clase: [
+      {ingrediente: "Agua natural", clase: "Bebida", cantidad: 0.0125, unidad: "Garrafones"}
+    ]
+  }
+  // Aquí puedes agregar las demás recetas completas
+];
+
+// ---------------- Inicialización ---------------- //
+function init() {
+  // Llenar recetas
+  const recetaSelect = document.getElementById('recetaSelect');
+  recetas.forEach(r => {
+    const opt = document.createElement('option');
+    opt.value = r.nombre;
+    opt.textContent = r.nombre;
+    recetaSelect.appendChild(opt);
+  });
+
+  // Cargar precios de LocalStorage
+  cargarPrecios();
+}
+
+function cargarPrecios() {
+  const semana = document.getElementById('semanaInput').value;
+  const precios = JSON.parse(localStorage.getItem('precios')) || {};
+  const semanaPrecios = precios[`semana_${semana}`] || {};
+  const tbody = document.querySelector('#preciosTable tbody');
+  tbody.innerHTML = '';
+
+  const ingredientesUnicos = [...new Set(recetas.flatMap(r => r.clase.map(c => c.ingrediente)))];
+
+  ingredientesUnicos.forEach(ing => {
+    const clase = recetas.flatMap(r => r.clase).find(c => c.ingrediente === ing).clase;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${ing}</td>
+      <td>${clase}</td>
+      <td><input type='number' step='0.01' value='${semanaPrecios[ing] || 0}'></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// ---------------- Guardar Precios ---------------- //
+document.getElementById('guardarPrecios').addEventListener('click', () => {
+  const semana = document.getElementById('semanaInput').value;
+  const tbody = document.querySelector('#preciosTable tbody');
+  const filas = Array.from(tbody.querySelectorAll('tr'));
+  const preciosSemana = {};
+  filas.forEach(f => {
+    const ing = f.cells[0].textContent;
+    const valor = parseFloat(f.cells[2].querySelector('input').value) || 0;
+    preciosSemana[ing] = valor;
+  });
+  const precios = JSON.parse(localStorage.getItem('precios')) || {};
+  precios[`semana_${semana}`] = preciosSemana;
+  localStorage.setItem('precios', JSON.stringify(precios));
+  alert('Precios guardados!');
+});
+
+// ---------------- Guardar Día ---------------- //
+document.getElementById('guardarDia').addEventListener('click', () => {
+  const dia = document.getElementById('diaSelect').value;
+  const matricula = document.getElementById('matriculaInput').value.split(',').map(x => x.trim()).filter(x => x);
+  const recetasSeleccionadas = Array.from(document.getElementById('recetaSelect').selectedOptions).map(opt => opt.value);
+  const data = JSON.parse(localStorage.getItem('diaData')) || {};
+  data[dia] = { matricula, recetas: recetasSeleccionadas };
+  localStorage.setItem('diaData', JSON.stringify(data));
+  alert('Datos del día guardados!');
+});
+
+// ---------------- Generar Reporte ---------------- //
+document.getElementById('generarReporte').addEventListener('click', () => {
+  const semana = document.getElementById('semanaInput').value;
+  const precios = JSON.parse(localStorage.getItem('precios')) || {};
+  const dataDias = JSON.parse(localStorage.getItem('diaData')) || {};
+  const preciosSemana = precios[`semana_${semana}`] || {};
+
+  // Calcular totales
+  const totales = {};
+  Object.keys(dataDias).forEach(dia => {
+    const matriculaCount = dataDias[dia].matricula.length;
+    dataDias[dia].recetas.forEach(recetaNombre => {
+      const receta = recetas.find(r => r.nombre === recetaNombre);
+      receta.clase.forEach(item => {
+        if(!totales[item.ingrediente]) totales[item.ingrediente] = { clase: item.clase, unidad: item.unidad, porDia: {}, total: 0 };
+        const cantidadTotal = item.cantidad * matriculaCount;
+        totales[item.ingrediente].porDia[dia] = (totales[item.ingrediente].porDia[dia] || 0) + cantidadTotal;
+        totales[item.ingrediente].total += cantidadTotal;
       });
-    };
+    });
+  });
 
-    // Función para calcular totales
-    function calcularTotales() {
-      const matricula = parseInt(document.getElementById('matricula').value);
-      const filas = document.querySelectorAll("#tabla-body tr");
-      filas.forEach((fila, i) => {
-        const cantidad = recetas[i].cantidad;
-        const total = (cantidad * matricula) / 1000; // ejemplo de conversión si son gramos
-        fila.children[3].textContent = total.toFixed(3);
-      });
-    }
-  </script>
+  // Crear tabla
+  let html = `<table><thead><tr><th>Ingrediente</th><th>Clase</th><th>Lunes</th><th>Martes</th><th>Miércoles</th><th>Jueves</th><th>Viernes</th><th>Total Semana</th><th>Unidad</th><th>Precio</th><th>Costo Total</th></tr></thead><tbody>`;
 
+  Object.keys(totales).forEach(ing => {
+    const t = totales[ing];
+    const dias = ['lunes','martes','miercoles','jueves','viernes'];
+    html += `<tr><td>${ing}</td><td>${t.clase}</td>`;
+    dias.forEach(d => html += `<td>${(t.porDia[d] || 0).toFixed(4)}</td>`);
+    const precio = preciosSemana[ing] || 0;
+    const costo = precio * t.total;
+    html += `<td>${t.total.toFixed(4)}</td><td>${t.unidad}</td><td>${precio.toFixed(2)}</td><td>${costo.toFixed(2)}</td></tr>`;
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('reporteDiv').innerHTML = html;
+});
+
+// ---------------- Exportar PDF ---------------- //
+document.getElementById('exportPDF').addEventListener('click', () => {
+  const {{ jsPDF }} = window.jspdf;
+  const doc = new jsPDF();
+  doc.html(document.getElementById('reporteDiv'), {
+    callback: function (doc) {
+      doc.save('reporte_semanal.pdf');
+    },
+    x: 10,
+    y: 10
+  });
+});
+
+// ---------------- Eventos ---------------- //
+document.getElementById('semanaInput').addEventListener('change', cargarPrecios);
+
+init();
+</script>
 </body>
 </html>
-
-
-
