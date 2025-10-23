@@ -6,6 +6,7 @@
 <title>Menús Semanales</title>
 <style>
   body { font-family: Arial, sans-serif; background: #f4f4f9; padding: 20px; }
+  h1,h2 { color: #333; }
   h2 { background: #4CAF50; color: white; padding: 10px; border-radius: 5px; }
   .menu { background: white; padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
   table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
@@ -13,42 +14,48 @@
   th { background: #eee; }
   input[type="number"] { width: 100px; }
   #totalSemana { font-weight: bold; font-size: 18px; }
+  #personas { width: 80px; margin-bottom: 20px; }
+  button { padding: 8px 15px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+  button:hover { background: #45a049; }
 </style>
 </head>
 <body>
 
 <h1>Menús Semanales</h1>
 
+<label>Número de personas: <input type="number" id="personas" value="1" min="1" onchange="cargarMenus()"></label>
+
 <div id="menusContainer"></div>
 
 <h2>Total Semana: $<span id="totalSemana">0</span></h2>
+<button onclick="generarReporte()">Generar Reporte</button>
 
 <script>
-// Ejemplo de menú con todos sus platillos
+// Ejemplo de menús con ingredientes por 1 persona
 const menus = [
   {
     semana: 1,
     nombre: "MENÚ 1",
     platillos: [
       { nombre: "Sándwich o taco de huevo con espinaca y queso", ingredientes: [
-        { nombre: "Pan integral", cantidad: "54 g" },
-        { nombre: "Huevo", cantidad: "35 g" },
-        { nombre: "Espinaca", cantidad: "30 g" },
-        { nombre: "Cebolla", cantidad: "0.5 g" },
-        { nombre: "Aceite", cantidad: "0.3 L" },
-        { nombre: "Queso panela", cantidad: "12 g" },
-        { nombre: "Lechuga", cantidad: "5 g" },
-        { nombre: "Jitomate", cantidad: "5 g" }
+        { nombre: "Pan integral", cantidad: 54, unidad: "g" },
+        { nombre: "Huevo", cantidad: 35, unidad: "g" },
+        { nombre: "Espinaca", cantidad: 30, unidad: "g" },
+        { nombre: "Cebolla", cantidad: 0.5, unidad: "g" },
+        { nombre: "Aceite", cantidad: 0.3, unidad: "L" },
+        { nombre: "Queso panela", cantidad: 12, unidad: "g" },
+        { nombre: "Lechuga", cantidad: 5, unidad: "g" },
+        { nombre: "Jitomate", cantidad: 5, unidad: "g" }
       ]},
       { nombre: "Ensalada dulce", ingredientes: [
-        { nombre: "Zanahoria", cantidad: "25 g" },
-        { nombre: "Piña", cantidad: "80 g" },
-        { nombre: "Cacahuate", cantidad: "5 g" },
-        { nombre: "Yogurth natural", cantidad: "6 L" }
+        { nombre: "Zanahoria", cantidad: 25, unidad: "g" },
+        { nombre: "Piña", cantidad: 80, unidad: "g" },
+        { nombre: "Cacahuate", cantidad: 5, unidad: "g" },
+        { nombre: "Yogurth natural", cantidad: 6, unidad: "L" }
       ]},
       { nombre: "Bebida", ingredientes: [
-        { nombre: "Agua natural", cantidad: "250 Garrafones" },
-        { nombre: "Opción tortilla de maíz", cantidad: "60 g" }
+        { nombre: "Agua natural", cantidad: 250, unidad: "Garrafones" },
+        { nombre: "Opción tortilla de maíz", cantidad: 60, unidad: "g" }
       ]}
     ]
   },
@@ -57,48 +64,47 @@ const menus = [
     nombre: "MENÚ 2",
     platillos: [
       { nombre: "Bistec con queso panela y nopales en salsa de guajillo", ingredientes: [
-        { nombre: "Bistec de res", cantidad: "27.5 g" },
-        { nombre: "Nopal", cantidad: "50 g" },
-        { nombre: "Papa", cantidad: "40 g" },
-        { nombre: "Queso panela", cantidad: "10 g" }
+        { nombre: "Bistec de res", cantidad: 27.5, unidad: "g" },
+        { nombre: "Nopal", cantidad: 50, unidad: "g" },
+        { nombre: "Papa", cantidad: 40, unidad: "g" },
+        { nombre: "Queso panela", cantidad: 10, unidad: "g" }
       ]},
       { nombre: "Fruta", ingredientes: [
-        { nombre: "Plátano", cantidad: "60 g" },
-        { nombre: "Melón", cantidad: "70 g" },
-        { nombre: "Semillas de girasol", cantidad: "3 g" }
+        { nombre: "Plátano", cantidad: 60, unidad: "g" },
+        { nombre: "Melón", cantidad: 70, unidad: "g" },
+        { nombre: "Semillas de girasol", cantidad: 3, unidad: "g" }
       ]},
       { nombre: "Cereal", ingredientes: [
-        { nombre: "Tortilla de maíz", cantidad: "60 g" }
+        { nombre: "Tortilla de maíz", cantidad: 60, unidad: "g" }
       ]},
       { nombre: "Bebida", ingredientes: [
-        { nombre: "Agua natural", cantidad: "250 Garrafones" }
+        { nombre: "Agua natural", cantidad: 250, unidad: "Garrafones" }
       ]}
     ]
   }
-  // Agregar más menús siguiendo esta estructura
+  // Agrega todos los demás menús siguiendo esta estructura
 ];
 
-// Función para cargar menus
+// Cargar menús en pantalla
 function cargarMenus() {
   const container = document.getElementById("menusContainer");
   container.innerHTML = "";
-  let totalSemana = 0;
-
+  const personas = parseInt(document.getElementById("personas").value) || 1;
+  
   menus.forEach((menu, index) => {
     const div = document.createElement("div");
     div.classList.add("menu");
     div.innerHTML = `<h2>SEMANA ${menu.semana} - ${menu.nombre}</h2>`;
     
     menu.platillos.forEach(platillo => {
-      let tabla = `<table><tr><th>Platillo/Ingrediente</th><th>Cantidad</th></tr>`;
+      let tabla = `<table><tr><th>Platillo/Ingrediente</th><th>Cantidad para ${personas} personas</th></tr>`;
       platillo.ingredientes.forEach(ing => {
-        tabla += `<tr><td>${ing.nombre}</td><td>${ing.cantidad}</td></tr>`;
+        tabla += `<tr><td>${ing.nombre}</td><td>${(ing.cantidad * personas).toFixed(3)} ${ing.unidad}</td></tr>`;
       });
       tabla += `</table>`;
       div.innerHTML += `<strong>${platillo.nombre}</strong>` + tabla;
     });
 
-    // Campo de precio por menú
     const precioGuardado = getCookie(`precio_menu_${index}`) || 0;
     div.innerHTML += `Precio del menú: $<input type="number" min="0" value="${precioGuardado}" onchange="guardarPrecio(${index}, this.value)">`;
 
@@ -120,7 +126,8 @@ function actualizarTotalSemana() {
   menus.forEach((menu, index) => {
     total += parseFloat(getCookie(`precio_menu_${index}`) || 0);
   });
-  document.getElementById("totalSemana").innerText = total.toFixed(2);
+  const personas = parseInt(document.getElementById("personas").value) || 1;
+  document.getElementById("totalSemana").innerText = (total * personas).toFixed(2);
 }
 
 // Cookies simples
@@ -142,9 +149,29 @@ function getCookie(name) {
   return "";
 }
 
+// Generar reporte total
+function generarReporte() {
+  const personas = parseInt(document.getElementById("personas").value) || 1;
+  let reporte = `Reporte para ${personas} personas:\n\n`;
+
+  menus.forEach(menu => {
+    reporte += `SEMANA ${menu.semana} - ${menu.nombre}\n`;
+    menu.platillos.forEach(platillo => {
+      reporte += `${platillo.nombre}\n`;
+      platillo.ingredientes.forEach(ing => {
+        reporte += `  - ${ing.nombre}: ${(ing.cantidad * personas).toFixed(3)} ${ing.unidad}\n`;
+      });
+    });
+    reporte += "\n";
+  });
+
+  alert(reporte); // O aquí puedes descargar como txt o PDF si quieres
+}
+
 window.onload = cargarMenus;
 </script>
 </body>
 </html>
+
 
 
