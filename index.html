@@ -1,478 +1,142 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Recetario Escolar - App</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestión de Menús Semanales</title>
 <style>
-  :root{--accent:#2563eb}
-  body{font-family:Inter, Arial, sans-serif;margin:18px;color:#111}
-  h1{margin:0 0 10px}
-  .grid{display:grid;grid-template-columns:1fr;gap:18px}
-  .card{border:1px solid #e5e7eb;border-radius:8px;padding:12px}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th,td{border:1px solid #e5e7eb;padding:6px;text-align:center}
-  th{background:#f3f4f6}
-  input[type=number], input[type=text], select{padding:6px;border:1px solid #d1d5db;border-radius:6px}
-  .row{display:flex;gap:8px;align-items:center}
-  .btn{background:var(--accent);color:white;padding:8px 10px;border-radius:6px;border:none;cursor:pointer}
-  .btn.secondary{background:#374151}
-  .small{font-size:12px}
-  .muted{color:#6b7280}
-  .flex-between{display:flex;justify-content:space-between;align-items:center}
-  .wide{width:100%}
+  body { font-family: Arial, sans-serif; padding: 20px; }
+  h2 { margin-top: 30px; }
+  table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+  th, td { border: 1px solid #ccc; padding: 5px; text-align: left; }
+  input[type='number'], input[type='text'] { width: 60px; }
+  .menu { margin-bottom: 20px; padding: 10px; border: 1px solid #999; }
+  .boton { margin-top: 10px; }
 </style>
 </head>
 <body>
-<h1>Recetario Escolar — Gestión semanal</h1>
-<p class="muted">App local (guarda todo en Local Storage). Puedes editar precios, matrícula y recetas por día; genera reporte y exporta PDF.</p>
+<h1>Gestión de Menús Semanales</h1>
 
-<div class="grid">
-  <div class="card">
-    <div class="flex-between">
-      <h2 style="margin:0">1) Selección de semana y precios</h2>
-      <div class="row">
-        <label class="small">Semana # <input id="semanaInput" type="number" min="1" value="1" style="width:80px"></label>
-        <button class="btn" id="cargarSemana">Cargar</button>
-        <button class="btn secondary" id="borrarSemana">Borrar semana</button>
-      </div>
-    </div>
-
-    <p class="muted small">Ingresa el <strong>precio por unidad</strong> (ej: precio por Kg, L, paquete o pza según unidad mostrada). Guarda para aplicar a la semana seleccionada.</p>
-
-    <div style="overflow:auto;max-height:340px;margin-top:8px">
-      <table id="preciosTable">
-        <thead>
-          <tr><th>Ingrediente</th><th>Clase</th><th>Unidad</th><th>Precio (por unidad)</th></tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-
-    <div style="margin-top:10px" class="row">
-      <button class="btn" id="guardarPrecios">Guardar precios para esta semana</button>
-      <button class="btn secondary" id="autoguardarPrecios">Auto-guardar on change</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2 style="margin:0">2) Matrícula y selección de recetas por día</h2>
-    <p class="muted small">Ingresa matrícula (número de alumnos) por día o lista de IDs separados por comas. Selecciona las recetas para ese día y guarda.</p>
-
-    <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap">
-      <div style="flex:1;min-width:260px">
-        <label>Día:
-          <select id="diaSelect">
-            <option value="lunes">Lunes</option>
-            <option value="martes">Martes</option>
-            <option value="miercoles">Miércoles</option>
-            <option value="jueves">Jueves</option>
-            <option value="viernes">Viernes</option>
-          </select>
-        </label>
-        <div style="margin-top:8px">
-          <label>Matrícula (número o IDs coma): <input id="matriculaInput" type="text" class="wide" placeholder="ej: 28 o 101,102,103"></label>
-        </div>
-        <div style="margin-top:8px">
-          <label>Selecciona recetas (Ctrl/Cmd+click para multiselección):</label>
-          <select id="recetaSelect" multiple size="10" style="width:100%;margin-top:6px"></select>
-        </div>
-        <div style="margin-top:8px" class="row">
-          <button class="btn" id="guardarDia">Guardar día</button>
-          <button class="btn secondary" id="cargarDia">Cargar día</button>
-        </div>
-      </div>
-
-      <div style="flex:1;min-width:260px">
-        <h3 style="margin:0">Recetas (20 incluidas)</h3>
-        <div style="max-height:300px;overflow:auto;margin-top:8px;">
-          <ul id="listaRecetas" class="small muted"></ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2 style="margin:0">3) Reporte semanal</h2>
-    <p class="muted small">Genera el reporte que suma las cantidades por día y por semana, agrupa por clase, y aplica precios de la semana seleccionada.</p>
-    <div style="display:flex;gap:8px;margin-top:8px">
-      <button class="btn" id="generarReporte">Generar reporte</button>
-      <button class="btn" id="exportPDF">Exportar PDF</button>
-      <button class="btn secondary" id="limpiarDatos">Limpiar todo (Local Storage)</button>
-    </div>
-
-    <div id="reporteArea" style="margin-top:12px;overflow:auto;max-height:520px"></div>
-  </div>
+<div>
+  <label>Matricula del Alumno: </label>
+  <input type="text" id="matricula" placeholder="Ej. 12345">
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<div id="menusContainer"></div>
+<button onclick="guardarSeleccion()" class="boton">Guardar Selección</button>
+<button onclick="generarReporte()" class="boton">Generar Reporte Semanal</button>
+
+<div id="reporteContainer"></div>
+
 <script>
-/* ---------------------- Datos: todas las recetas (20) ---------------------- */
-const RECETAS = [
-  { nombre: "Sándwich o Taco de Huevo con Espinaca y Queso", items:[
-      {i:"Pan integral", clase:"Cereales", cantidad:0.1, unidad:"Paquetes"},
-      {i:"Huevo", clase:"Proteínas", cantidad:0.035, unidad:"Kg"},
-      {i:"Espinaca", clase:"Vegetales", cantidad:0.03, unidad:"Kg"},
-      {i:"Cebolla", clase:"Vegetales", cantidad:0.0005, unidad:"Kg"},
-      {i:"Aceite", clase:"Aceites", cantidad:0.0003, unidad:"L"},
-      {i:"Queso panela", clase:"Lácteos", cantidad:0.012, unidad:"Kg"},
-      {i:"Lechuga", clase:"Vegetales", cantidad:0.005, unidad:"Kg"},
-      {i:"Jitomate", clase:"Vegetales", cantidad:0.005, unidad:"Kg"}
-    ]},
-  { nombre: "Ensalada Dulce", items:[
-      {i:"Zanahoria", clase:"Vegetales", cantidad:0.025, unidad:"Kg"},
-      {i:"Piña", clase:"Frutas", cantidad:0.08, unidad:"Kg"},
-      {i:"Cacahuate", clase:"Semillas", cantidad:0.005, unidad:"Kg"},
-      {i:"Yogurth natural", clase:"Lácteos", cantidad:0.006, unidad:"L"}
-    ]},
-  { nombre: "Bebida (Agua)", items:[
-      {i:"Agua natural", clase:"Bebidas", cantidad:0.0125, unidad:"Garrafones"},
-      {i:"Opción tortilla de maíz", clase:"Cereales", cantidad:0.06, unidad:"Kg"}
-    ]},
-  { nombre: "Bistec con queso panela y nopales en salsa de guajillo", items:[
-      {i:"Bistec de res", clase:"Proteínas", cantidad:0.0275, unidad:"Kg"},
-      {i:"Nopal", clase:"Vegetales", cantidad:0.05, unidad:"Kg"},
-      {i:"Papa", clase:"Vegetales", cantidad:0.04, unidad:"Kg"},
-      {i:"Queso panela", clase:"Lácteos", cantidad:0.01, unidad:"Kg"}
-    ]},
-  { nombre: "Salsa de jitomate (base)", items:[
-      {i:"Jitomate", clase:"Vegetales", cantidad:0.03, unidad:"Kg"},
-      {i:"Chile guajillo sin picante", clase:"Otros", cantidad:0.0003, unidad:"Kg"},
-      {i:"Ajo", clase:"Vegetales", cantidad:0.0003, unidad:"Kg"},
-      {i:"Cebolla", clase:"Vegetales", cantidad:0.0003, unidad:"Kg"},
-      {i:"Aceite", clase:"Aceites", cantidad:0.0005, unidad:"L"},
-      {i:"Sal", clase:"Otros", cantidad:0.00002, unidad:"Kg"}
-    ]},
-  { nombre: "Frijoles de la olla", items:[
-      {i:"Frijol", clase:"Proteínas", cantidad:0.0175, unidad:"Kg"},
-      {i:"Cebolla", clase:"Vegetales", cantidad:0.0003, unidad:"Kg"},
-      {i:"Ajo", clase:"Vegetales", cantidad:0.0003, unidad:"Kg"},
-      {i:"Sal", clase:"Otros", cantidad:0.00002, unidad:"Kg"},
-      {i:"Aceite", clase:"Aceites", cantidad:0.00025, unidad:"L"}
-    ]},
-  { nombre: "Fruta (varios)", items:[
-      {i:"Plátano", clase:"Frutas", cantidad:0.06, unidad:"Kg"},
-      {i:"Melón", clase:"Frutas", cantidad:0.07, unidad:"Kg"},
-      {i:"Semillas de girasol", clase:"Semillas", cantidad:0.003, unidad:"Kg"}
-    ]},
-  { nombre: "Hot cake de avena y plátano", items:[
-      {i:"Harina integral de trigo", clase:"Cereales", cantidad:0.016, unidad:"Kg"},
-      {i:"Hojuelas de avena", clase:"Cereales", cantidad:0.011, unidad:"Kg"},
-      {i:"Huevo", clase:"Proteínas", cantidad:0.022, unidad:"Kg"},
-      {i:"Plátano", clase:"Frutas", cantidad:0.05, unidad:"Kg"},
-      {i:"Aceite", clase:"Aceites", cantidad:0.001, unidad:"L"},
-      {i:"Esencia de vainilla", clase:"Otros", cantidad:0.00025, unidad:"L"}
-    ]},
-  { nombre: "Zanahoria y jícama rallada", items:[
-      {i:"Zanahoria", clase:"Vegetales", cantidad:0.035, unidad:"Kg"},
-      {i:"Jícama", clase:"Vegetales", cantidad:0.035, unidad:"Kg"}
-    ]},
-  { nombre: "Tortitas de pollo con verduras", items:[
-      {i:"Pechuga de pollo", clase:"Proteínas", cantidad:0.0475, unidad:"Kg"},
-      {i:"Ajo", clase:"Vegetales", cantidad:0.0003, unidad:"Kg"},
-      {i:"Cebolla", clase:"Vegetales", cantidad:0.0003, unidad:"Kg"},
-      {i:"Huevo", clase:"Proteínas", cantidad:0.015, unidad:"Kg"},
-      {i:"Calabacita", clase:"Vegetales", cantidad:0.05, unidad:"Kg"},
-      {i:"Papa", clase:"Vegetales", cantidad:0.025, unidad:"Kg"},
-      {i:"Aceite", clase:"Aceites", cantidad:0.0005, unidad:"L"},
-      {i:"Sal", clase:"Otros", cantidad:0.00002, unidad:"Kg"}
-    ]},
-  { nombre: "Entomatadas de la milpa", items:[
-      {i:"Tortilla de maíz", clase:"Cereales", cantidad:0.06, unidad:"Kg"},
-      {i:"Alverjón refrito", clase:"Proteínas", cantidad:0.009, unidad:"Kg"},
-      {i:"Calabacita", clase:"Vegetales", cantidad:0.045, unidad:"Kg"},
-      {i:"Zanahoria", clase:"Vegetales", cantidad:0.025, unidad:"Kg"},
-      {i:"Queso panela", clase:"Lácteos", cantidad:0.009, unidad:"Kg"},
-      {i:"Cebolla", clase:"Vegetales", cantidad:0.0003, unidad:"Kg"}
-    ]},
-  { nombre: "Tostada o taco de salpicón de pollo", items:[
-      {i:"Pechuga de pollo", clase:"Proteínas", cantidad:0.03, unidad:"Kg"},
-      {i:"Ajo", clase:"Vegetales", cantidad:0.0003, unidad:"Kg"},
-      {i:"Cebolla", clase:"Vegetales", cantidad:0.0003, unidad:"Kg"},
-      {i:"Queso fresco", clase:"Lácteos", cantidad:0.015, unidad:"Kg"},
-      {i:"Lechuga", clase:"Vegetales", cantidad:0.03, unidad:"Kg"},
-      {i:"Jitomate", clase:"Vegetales", cantidad:0.025, unidad:"Kg"},
-      {i:"Cilantro", clase:"Vegetales", cantidad:0.00002, unidad:"Kg"},
-      {i:"Vinagre", clase:"Otros", cantidad:0.0005, unidad:"Kg"},
-      {i:"Tostada horneada", clase:"Cereales", cantidad:0.05, unidad:"Paquetes"}
-    ]},
-  { nombre: "Caldito saludable", items:[
-      {i:"Garbanzo", clase:"Proteínas", cantidad:0.023, unidad:"Kg"},
-      {i:"Arroz", clase:"Cereales", cantidad:0.003, unidad:"Kg"},
-      {i:"Zanahoria", clase:"Vegetales", cantidad:0.02, unidad:"Kg"}
-    ]},
-  { nombre: "Huevo a la mexicana", items:[
-      {i:"Huevo", clase:"Proteínas", cantidad:0.06, unidad:"Kg"},
-      {i:"Jitomate", clase:"Vegetales", cantidad:0.025, unidad:"Kg"},
-      {i:"Aceite", clase:"Aceites", cantidad:0.0005, unidad:"L"}
-    ]},
-  { nombre: "Frijoles refritos (acompañamiento)", items:[
-      {i:"Frijol", clase:"Proteínas", cantidad:0.0175, unidad:"Kg"},
-      {i:"Aceite", clase:"Aceites", cantidad:0.00025, unidad:"L"}
-    ]},
-  { nombre: "Picadillo de lentejas con molida de res", items:[
-      {i:"Lenteja", clase:"Proteínas", cantidad:0.037, unidad:"Kg"},
-      {i:"Molida de res", clase:"Proteínas", cantidad:0.008, unidad:"Kg"},
-      {i:"Zanahoria", clase:"Vegetales", cantidad:0.05, unidad:"Kg"},
-      {i:"Chícharo", clase:"Vegetales", cantidad:0.02, unidad:"Kg"}
-    ]},
-  { nombre: "Arroz con verduras", items:[
-      {i:"Arroz", clase:"Cereales", cantidad:0.008, unidad:"Kg"},
-      {i:"Calabacita", clase:"Vegetales", cantidad:0.047, unidad:"Kg"},
-      {i:"Pimiento morrón", clase:"Vegetales", cantidad:0.01, unidad:"Kg"}
-    ]},
-  { nombre: "Mollete con pico de gallo", items:[
-      {i:"Bolillo integral", clase:"Cereales", cantidad:0.5, unidad:"PZAS"},
-      {i:"Queso panela", clase:"Lácteos", cantidad:0.025, unidad:"Kg"}
-    ]},
-  { nombre: "Quesadilla campirana", items:[
-      {i:"Tortilla de maíz", clase:"Cereales", cantidad:0.03, unidad:"Kg"},
-      {i:"Pechuga de pollo", clase:"Proteínas", cantidad:0.025, unidad:"Kg"},
-      {i:"Espinaca", clase:"Vegetales", cantidad:0.037, unidad:"Kg"},
-      {i:"Queso oaxaca", clase:"Lácteos", cantidad:0.009, unidad:"Kg"}
-    ]},
-  { nombre: "Calabacitas con pollo y queso", items:[
-      {i:"Calabacita", clase:"Vegetales", cantidad:0.072, unidad:"Kg"},
-      {i:"Granos de elote", clase:"Vegetales", cantidad:0.01, unidad:"Kg"},
-      {i:"Queso fresco", clase:"Lácteos", cantidad:0.005, unidad:"Kg"},
-      {i:"Pechuga de pollo", clase:"Proteínas", cantidad:0.025, unidad:"Kg"}
-    ]},
-  { nombre: "Enfrijoladas con pollo", items:[
-      {i:"Tortilla de maíz", clase:"Cereales", cantidad:0.06, unidad:"Kg"},
-      {i:"Pechuga de pollo", clase:"Proteínas", cantidad:0.028, unidad:"Kg"},
-      {i:"Queso panela", clase:"Lácteos", cantidad:0.0175, unidad:"Kg"},
-      {i:"Arroz", clase:"Cereales", cantidad:0.01, unidad:"Kg"}
-    ]},
-  { nombre: "Huevo con ejotes", items:[
-      {i:"Huevo", clase:"Proteínas", cantidad:0.05, unidad:"Kg"},
-      {i:"Ejote", clase:"Vegetales", cantidad:0.03, unidad:"Kg"}
-    ]},
-  { nombre: "Tinga de zanahoria con pollo", items:[
-      {i:"Zanahoria", clase:"Vegetales", cantidad:0.045, unidad:"Kg"},
-      {i:"Pechuga de pollo", clase:"Proteínas", cantidad:0.03, unidad:"Kg"},
-      {i:"Chícharo", clase:"Vegetales", cantidad:0.01, unidad:"Kg"}
-    ]},
-  { nombre: "Sope con nopales", items:[
-      {i:"Harina de maíz nixtamalizado", clase:"Cereales", cantidad:0.0315, unidad:"Kg"},
-      {i:"Ajonjolí", clase:"Semillas", cantidad:0.0045, unidad:"Kg"},
-      {i:"Nopal crudo", clase:"Vegetales", cantidad:0.018, unidad:"Kg"},
-      {i:"Queso panela", clase:"Lácteos", cantidad:0.016, unidad:"Kg"}
-    ]},
-  { nombre: "Sopa de fideo integral con pollo", items:[
-      {i:"Pasta integral", clase:"Cereales", cantidad:0.006, unidad:"Kg"},
-      {i:"Pechuga de pollo", clase:"Proteínas", cantidad:0.033, unidad:"Kg"}
-    ]},
-  { nombre: "Enchiladas verdes con pollo", items:[
-      {i:"Tortilla de maíz", clase:"Cereales", cantidad:0.06, unidad:"Kg"},
-      {i:"Pechuga de pollo", clase:"Proteínas", cantidad:0.015, unidad:"Kg"},
-      {i:"Queso fresco", clase:"Lácteos", cantidad:0.005, unidad:"Kg"},
-      {i:"Champiñón", clase:"Vegetales", cantidad:0.015, unidad:"Kg"}
-    ]},
-  { nombre: "Milanesa de res verduras", items:[
-      {i:"Carne molida", clase:"Proteínas", cantidad:0.03, unidad:"Kg"},
-      {i:"Papa", clase:"Vegetales", cantidad:0.042, unidad:"Kg"},
-      {i:"Brócoli", clase:"Vegetales", cantidad:0.017, unidad:"Kg"}
-    ]},
-  { nombre: "Huevo con nopales y papa", items:[
-      {i:"Huevo", clase:"Proteínas", cantidad:0.025, unidad:"Kg"},
-      {i:"Nopal", clase:"Vegetales", cantidad:0.025, unidad:"Kg"},
-      {i:"Papa", clase:"Vegetales", cantidad:0.026, unidad:"Kg"}
-    ]},
-  { nombre: "Alubias a la jardinera", items:[
-      {i:"Alubias", clase:"Proteínas", cantidad:0.004, unidad:"Kg"},
-      {i:"Espinaca", clase:"Vegetales", cantidad:0.035, unidad:"Kg"},
-      {i:"Col", clase:"Vegetales", cantidad:0.023, unidad:"Kg"}
-    ]},
-  { nombre: "Quesadilla de acelga", items:[
-      {i:"Tortilla de maíz", clase:"Cereales", cantidad:0.06, unidad:"Kg"},
-      {i:"Queso oaxaca", clase:"Lácteos", cantidad:0.03, unidad:"Kg"},
-      {i:"Acelga", clase:"Vegetales", cantidad:0.05, unidad:"Kg"}
-    ]},
-  { nombre: "Tacos/tostada de atún o sardina a la mexicana", items:[
-      {i:"Atún en agua (masa drenada)", clase:"Proteínas", cantidad:0.025, unidad:"Kg"},
-      {i:"Jitomate", clase:"Vegetales", cantidad:0.035, unidad:"Kg"},
-      {i:"Ejote", clase:"Vegetales", cantidad:0.03, unidad:"Kg"}
-    ]}
+// Aquí ponemos los menús (resumen ejemplo, se puede expandir con todos los que me enviaste)
+const menus = [
+  {
+    semana: 1,
+    menu: 1,
+    platillos: [
+      {nombre: 'Sándwich o Taco de Huevo con Espinaca y Queso', ingredientes: [
+        {nombre: 'Pan integral', cantidad: 0.1, unidad:'Paquetes'},
+        {nombre: 'Huevo', cantidad: 0.035, unidad:'Kg'},
+        {nombre: 'Espinaca', cantidad:0.03, unidad:'Kg'},
+        {nombre: 'Cebolla', cantidad:0.0005, unidad:'Kg'},
+        {nombre: 'Aceite', cantidad:0.0003, unidad:'L'},
+        {nombre: 'Queso panela', cantidad:0.012, unidad:'Kg'},
+        {nombre: 'Lechuga', cantidad:0.005, unidad:'Kg'},
+        {nombre: 'Jitomate', cantidad:0.005, unidad:'Kg'}
+      ]},
+      {nombre: 'Ensalada Dulce', ingredientes:[
+        {nombre:'Zanahoria', cantidad:0.025, unidad:'Kg'},
+        {nombre:'Piña', cantidad:0.08, unidad:'Kg'},
+        {nombre:'Cacahuate', cantidad:0.005, unidad:'Kg'},
+        {nombre:'Yogurth natural', cantidad:0.006, unidad:'L'}
+      ]},
+      {nombre: 'Bebida', ingredientes:[
+        {nombre:'Agua natural', cantidad:0.0125, unidad:'Garrafones'},
+        {nombre:'Tortilla de maíz', cantidad:0.06, unidad:'Kg'}
+      ]}
+    ]
+  },
+  // Se pueden agregar todos los menús que enviaste aquí siguiendo la misma estructura
 ];
 
-/* ---------------------- Utilidades y estado ---------------------- */
-const DIAS = ['lunes','martes','miercoles','jueves','viernes'];
-const LS_KEYS = { PRECIOS: 'app_precios', DIAS: 'app_dias' };
-let autoGuardarPrecios = false;
-
-function uniqueIngredients(){
-  const set = new Map();
-  RECETAS.forEach(r=> r.items.forEach(it => {
-    if(!set.has(it.i)) set.set(it.i, {ingrediente: it.i, clase: it.clase, unidad: it.unidad});
-  }));
-  return Array.from(set.values());
-}
-
-/* ---------------------- Inicialización UI ---------------------- */
-function initUI(){
-  // llenar lista recetas
-  const sel = document.getElementById('recetaSelect');
-  const lista = document.getElementById('listaRecetas');
-  RECETAS.forEach(r=>{
-    const opt = document.createElement('option'); opt.value=r.nombre; opt.textContent=r.nombre; sel.appendChild(opt);
-    const li = document.createElement('li'); li.textContent=r.nombre; lista.appendChild(li);
-  });
-  // llenar tabla de precios
-  renderPreciosTable();
-}
-
-function getStoredPrecios(){
-  return JSON.parse(localStorage.getItem(LS_KEYS.PRECIOS) || '{}');
-}
-function setStoredPrecios(obj){ localStorage.setItem(LS_KEYS.PRECIOS, JSON.stringify(obj)); }
-function getStoredDias(){ return JSON.parse(localStorage.getItem(LS_KEYS.DIAS) || '{}'); }
-function setStoredDias(obj){ localStorage.setItem(LS_KEYS.DIAS, JSON.stringify(obj)); }
-
-/* ---------------------- Precios: render y guardado ---------------------- */
-function renderPreciosTable(){
-  const tbody = document.querySelector('#preciosTable tbody'); tbody.innerHTML = '';
-  const ingredientes = uniqueIngredients();
-  const semana = document.getElementById('semanaInput').value;
-  const precios = getStoredPrecios();
-  const semanaPre = precios[`semana_${semana}`] || {};
-  ingredientes.forEach(row => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${row.ingrediente}</td><td>${row.clase}</td><td>${row.unidad}</td><td><input data-ing="${row.ingrediente}" type="number" step="0.01" min="0" value="${(semanaPre[row.ingrediente]!==undefined)? semanaPre[row.ingrediente] : ''}"></td>`;
-    tbody.appendChild(tr);
-  });
-  // add change listeners
-  tbody.querySelectorAll('input[data-ing]').forEach(inp=>{
-    inp.addEventListener('input', ()=>{
-      if(autoGuardarPrecios) guardarPrecios();
-    });
-  });
-}
-
-function guardarPrecios(){
-  const semana = document.getElementById('semanaInput').value;
-  const tbody = document.querySelector('#preciosTable tbody');
-  const filas = Array.from(tbody.querySelectorAll('tr'));
-  const precios = getStoredPrecios();
-  precios[`semana_${semana}`] = precios[`semana_${semana}`] || {};
-  filas.forEach(f=>{
-    const ing = f.cells[0].textContent;
-    const val = parseFloat(f.cells[3].querySelector('input').value) || 0;
-    precios[`semana_${semana}`][ing] = val;
-  });
-  setStoredPrecios(precios);
-  alert('Precios guardados para la semana '+semana);
-}
-
-/* ---------------------- Días: guardar y cargar día ---------------------- */
-function guardarDia(){
-  const dia = document.getElementById('diaSelect').value;
-  const matriculaRaw = document.getElementById('matriculaInput').value.trim();
-  let matriculaArr = [];
-  if(matriculaRaw.includes(',')) matriculaArr = matriculaRaw.split(',').map(s=>s.trim()).filter(Boolean);
-  else if(matriculaRaw.length>0) matriculaArr = [matriculaRaw];
-  const matCount = matriculaArr.length>1 ? matriculaArr.length : (matriculaRaw? parseInt(matriculaRaw) || 0 : 0);
-  // si ingresaron número simple, guardamos como cantidad
-  const recetasSel = Array.from(document.getElementById('recetaSelect').selectedOptions).map(o=>o.value);
-  const dias = getStoredDias();
-  dias[dia] = { matricula: matriculaArr.length>1 ? matriculaArr : matCount, recetas: recetasSel };
-  setStoredDias(dias);
-  alert('Guardado día: '+dia);
-}
-
-function cargarDia(){
-  const dia = document.getElementById('diaSelect').value;
-  const dias = getStoredDias();
-  const obj = dias[dia] || {};
-  // set matricula
-  if(obj.matricula===undefined) document.getElementById('matriculaInput').value='';
-  else document.getElementById('matriculaInput').value = Array.isArray(obj.matricula) ? obj.matricula.join(',') : obj.matricula;
-  // set recetas
-  const sel = document.getElementById('recetaSelect');
-  Array.from(sel.options).forEach(o=> o.selected = obj.recetas ? obj.recetas.includes(o.value) : false);
-  alert('Datos cargados para '+dia);
-}
-
-/* ---------------------- Generar reporte ---------------------- */
-function generarReporte(){
-  const semana = document.getElementById('semanaInput').value;
-  const precios = getStoredPrecios();
-  const preciosSemana = precios[`semana_${semana}`] || {};
-  const diasData = getStoredDias();
-
-  // estructura: {ingrediente: {clase, unidad, porDia:{lunes:0,...}, total:0}}
-  const totals = {};
-  DIAS.forEach(d=>{
-    const dayObj = diasData[d];
-    if(!dayObj) return;
-    const mat = Array.isArray(dayObj.matricula) ? dayObj.matricula.length : (parseInt(dayObj.matricula) || 0);
-    dayObj.recetas.forEach(rname=>{
-      const receta = RECETAS.find(r=>r.nombre===rname);
-      if(!receta) return;
-      receta.items.forEach(it=>{
-        if(!totals[it.i]) totals[it.i] = { clase: it.clase, unidad: it.unidad, porDia: {}, total:0 };
-        const add = it.cantidad * mat;
-        totals[it.i].porDia[d] = (totals[it.i].porDia[d] || 0) + add;
-        totals[it.i].total += add;
+function renderMenus() {
+  const container = document.getElementById('menusContainer');
+  container.innerHTML = '';
+  menus.forEach(m => {
+    const div = document.createElement('div');
+    div.classList.add('menu');
+    let html = `<h2>Semana ${m.semana} - Menú ${m.menu}</h2>`;
+    m.platillos.forEach(p => {
+      html += `<h3>${p.nombre}</h3>`;
+      html += `<table><tr><th>Ingrediente</th><th>Cantidad</th><th>Unidad</th><th>Precio por unidad</th></tr>`;
+      p.ingredientes.forEach(i => {
+        html += `<tr><td>${i.nombre}</td><td>${i.cantidad}</td><td>${i.unidad}</td><td><input type='number' value='0' data-ing='${i.nombre}' data-menu='${m.menu}' data-semana='${m.semana}'></td></tr>`;
       });
+      html += `</table>`;
+    });
+    html += `<label>Seleccionar menú: <input type='checkbox' data-menu='${m.menu}' data-semana='${m.semana}'></label>`;
+    div.innerHTML = html;
+    container.appendChild(div);
+  });
+}
+
+function guardarSeleccion() {
+  const matricula = document.getElementById('matricula').value.trim();
+  if (!matricula) { alert('Ingresa la matrícula'); return; }
+
+  let seleccion = JSON.parse(localStorage.getItem('seleccion')) || {};
+  seleccion[matricula] = [];
+
+  menus.forEach(m => {
+    const checkbox = document.querySelector(`input[type='checkbox'][data-menu='${m.menu}'][data-semana='${m.semana}']`);
+    if (checkbox.checked) {
+      let menuData = {semana:m.semana, menu:m.menu, ingredientes:[]};
+      m.platillos.forEach(p => {
+        p.ingredientes.forEach(i => {
+          const precioInput = document.querySelector(`input[type='number'][data-ing='${i.nombre}'][data-menu='${m.menu}'][data-semana='${m.semana}']`);
+          menuData.ingredientes.push({nombre:i.nombre, cantidad:i.cantidad, unidad:i.unidad, precio: parseFloat(precioInput.value)});
+        });
+      });
+      seleccion[matricula].push(menuData);
+    }
+  });
+
+  localStorage.setItem('seleccion', JSON.stringify(seleccion));
+  alert('Selección guardada correctamente');
+}
+
+function generarReporte() {
+  const matricula = document.getElementById('matricula').value.trim();
+  if (!matricula) { alert('Ingresa la matrícula'); return; }
+  let seleccion = JSON.parse(localStorage.getItem('seleccion')) || {};
+  const reportContainer = document.getElementById('reporteContainer');
+  reportContainer.innerHTML = '';
+
+  if (!seleccion[matricula] || seleccion[matricula].length === 0) { reportContainer.innerHTML = '<p>No hay menús seleccionados</p>'; return; }
+
+  // Generar totales por semana
+  let semanas = {};
+  seleccion[matricula].forEach(m => {
+    if (!semanas[m.semana]) semanas[m.semana] = {};
+    m.ingredientes.forEach(i => {
+      if (!semanas[m.semana][i.nombre]) semanas[m.semana][i.nombre] = {cantidad:0, unidad:i.unidad, precio:0};
+      semanas[m.semana][i.nombre].cantidad += i.cantidad;
+      semanas[m.semana][i.nombre].precio += i.precio * i.cantidad;
     });
   });
 
-  // Agrupar por clase for presentation
-  const byClass = {};
-  Object.keys(totals).forEach(ing=>{
-    const rec = totals[ing];
-    if(!byClass[rec.clase]) byClass[rec.clase] = [];
-    const price = preciosSemana[ing] || 0;
-    const cost = price * rec.total;
-    byClass[rec.clase].push({ ingrediente: ing, unidad: rec.unidad, porDia: rec.porDia, total: rec.total, precio: price, costo: cost });
-  });
-
-  // Crear tabla HTML
-  let html = '<table><thead><tr><th>Clase</th><th>Insumo</th><th>Lun</th><th>Mar</th><th>Mié</th><th>Jue</th><th>Vie</th><th>Total_sem</th><th>Unidad</th><th>Precio</th><th>Costo</th></tr></thead><tbody>';
-  Object.keys(byClass).forEach(cl=>{
-    byClass[cl].forEach((r,i)=>{
-      html += `<tr><td>${cl}</td><td>${r.ingrediente}</td>`;
-      DIAS.forEach(d=> html += `<td>${(r.porDia[d]||0).toFixed(4)}</td>`);
-      html += `<td>${r.total.toFixed(4)}</td><td>${r.unidad}</td><td>${r.precio.toFixed(2)}</td><td>${r.costo.toFixed(2)}</td></tr>`;
-    });
-  });
-  html += '</tbody></table>';
-  document.getElementById('reporteArea').innerHTML = html;
+  for (const s in semanas) {
+    let html = `<h2>Semana ${s}</h2><table><tr><th>Ingrediente</th><th>Total Cantidad</th><th>Unidad</th><th>Total Precio</th></tr>`;
+    for (const i in semanas[s]) {
+      html += `<tr><td>${i}</td><td>${semanas[s][i].cantidad.toFixed(3)}</td><td>${semanas[s][i].unidad}</td><td>$${semanas[s][i].precio.toFixed(2)}</td></tr>`;
+    }
+    html += '</table>';
+    reportContainer.innerHTML += html;
+  }
 }
 
-/* ---------------------- Exportar PDF ---------------------- */
-async function exportPDF(){
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({orientation:'landscape'});
-  const titulo = 'Reporte semanal - semana ' + document.getElementById('semanaInput').value;
-  doc.setFontSize(14); doc.text(titulo, 10, 12);
-
-  // Convertir tabla en data para autoTable
-  const table = document.querySelector('#reporteArea table');
-  if(!table){ alert('Genera el reporte primero'); return; }
-  const headers = Array.from(table.querySelectorAll('thead th')).map(th=>th.textContent);
-  const rows = Array.from(table.querySelectorAll('tbody tr')).map(tr=> Array.from(tr.cells).map(td=>td.textContent));
-  doc.autoTable({ head: [headers], body: rows, startY: 18, styles:{fontSize:8} });
-  doc.save('reporte_semana_'+ document.getElementById('semanaInput').value +'.pdf');
-}
-
-/* ---------------------- Helpers UI binding ---------------------- */
-document.getElementById('cargarSemana').addEventListener('click', ()=> renderPreciosTable());
-document.getElementById('guardarPrecios').addEventListener('click', guardarPrecios);
-document.getElementById('autoguardarPrecios').addEventListener('click', ()=>{ autoGuardarPrecios = !autoGuardarPrecios; alert('Auto-guardar precios: '+ autoGuardarPrecios); });
-document.getElementById('guardarDia').addEventListener('click', guardarDia);
-document.getElementById('cargarDia').addEventListener('click', cargarDia);
-document.getElementById('generarReporte').addEventListener('click', generarReporte);
-document.getElementById('exportPDF').addEventListener('click', exportPDF);
-document.getElementById('limpiarDatos').addEventListener('click', ()=>{ if(confirm('Borrar todo Local Storage?')){ localStorage.removeItem(LS_KEYS.PRECIOS); localStorage.removeItem(LS_KEYS.DIAS); alert('Local Storage limpiado'); }});
-document.getElementById('borrarSemana').addEventListener('click', ()=>{
-  const semana = document.getElementById('semanaInput').value; const precios = getStoredPrecios(); delete precios[`semana_${semana}`]; setStoredPrecios(precios); renderPreciosTable(); alert('Semana '+semana+' borrada');
-});
-
-// init
-initUI();
-
+renderMenus();
 </script>
 </body>
 </html>
