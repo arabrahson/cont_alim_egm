@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Examen de Computación - 4° de Primaria (Corregido)</title>
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+  :root{ --primary:#0b66c3; --bg:#eef6ff; }
+  body{ font-family: Inter, "Segoe UI", Arial, sans-serif; background:var(--bg); margin:18px; color:#111827; }
+  .container{ max-width:920px; margin:auto; }
+  h1{ color:var(--primary); text-align:center; }
+  .card{ background:#fff; padding:18px; border-radius:12px; box-shadow:0 8px 30px rgba(11,102,195,0.06); }
+  .meta{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+  input[type="text"], input[type="date"], textarea{ width:100%; padding:8px; border-radius:8px; border:1px solid #d1d5db; }
+  .question{ margin:12px 0; padding:12px; border-radius:10px; background:linear-gradient(180deg,#eaf3ff,#f7fbff); border-left:6px solid var(--primary); }
+  .choices label{ display:block; padding:6px; margin:6px 0; border-radius:8px; cursor:pointer; }
+  .draw-area{ display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap; margin-top:10px; }
+  .canvas-box{ width:620px; max-width:100%; border-radius:10px; border:3px solid #111827; background:white; overflow:hidden; }
+  canvas{ display:block; width:100%; height:420px; touch-action:none; cursor:crosshair; }
+  .tools{ padding:8px; min-width:180px; background:linear-gradient(#fff,#fbfdff); border-radius:8px; border:1px solid #e6eefc; }
+  .palette{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px; }
+  .swatch{ width:36px; height:36px; border-radius:6px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.12); cursor:pointer; }
+  .swatch.selected{ outline:3px solid rgba(11,102,195,0.15); transform:scale(1.02); }
+  .small{ font-size:13px; padding:8px 10px; border-radius:8px; border:1px solid #cbd5e1; background:white; cursor:pointer; }
+  .primary-btn{ background:var(--primary); color:white; padding:12px 18px; border:none; border-radius:10px; cursor:pointer; font-weight:700; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Examen de Computación — 4° de Primaria</h1>
+
+    <div class="card">
+      <div class="meta">
+        <div style="flex:0 0 260px">
+          <label for="nombre">Nombre del alumno(a)</label>
+          <input id="nombre" type="text" placeholder="Escribe tu nombre">
+        </div>
+        <div style="flex:0 0 180px">
+          <label for="fecha">Fecha</label>
+          <input id="fecha" type="date">
+        </div>
+      </div>
+
+      <!-- (Preguntas 1..10 etc. --- omitidas aquí para brevedad en el código de ejemplo) -->
+      <!-- Repetimos exactamente las 10 preguntas del ejemplo anterior: -->
+      <div class="question" id="q1">
+        <b>1. ¿Para qué sirve la tecla SHIFT?</b>
+        <div class="choices">
+          <label><input type="radio" name="q1" value="a"> a) Para escribir mayúsculas y símbolos</label>
+          <label><input type="radio" name="q1" value="b"> b) Para cambiar la imagen de fondo</label>
+          <label><input type="radio" name="q1" value="c"> c) Para apagar la computadora</label>
+        </div>
+      </div>
+
+      <div class="question" id="q2">
+        <b>2. ¿Qué programa utilizamos para crear documentos de texto?</b>
+        <div class="choices">
+          <label><input type="radio" name="q2" value="a"> a) Paint</label>
+          <label><input type="radio" name="q2" value="b"> b) Word</label>
+          <label><input type="radio" name="q2" value="c"> c) Vedoque</label>
+        </div>
+      </div>
+
+      <div class="question" id="q3">
+        <b>3. ¿En qué pestaña de Word puedes cambiar el tamaño y estilo de letra (negrita, cursiva)?</b>
+        <div class="choices">
+          <label><input type="radio" name="q3" value="a"> a) Inicio</label>
+          <label><input type="radio" name="q3" value="b"> b) Insertar</label>
+          <label><input type="radio" name="q3" value="c"> c) Revisar</label>
+        </div>
+      </div>
+
+      <div class="question" id="q4">
+        <b>4. ¿Cuál es el atajo para COPIAR?</b>
+        <div class="choices">
+          <label><input type="radio" name="q4" value="a"> a) Ctrl + C</label>
+          <label><input type="radio" name="q4" value="b"> b) Ctrl + V</label>
+          <label><input type="radio" name="q4" value="c"> c) Ctrl + S</label>
+        </div>
+      </div>
+
+      <div class="question" id="q5">
+        <b>5. Explica brevemente (2-3 líneas): ¿Cómo guardas un documento en Word?</b>
+        <textarea id="q5open" rows="3" style="width:100%; padding:8px; border-radius:8px; border:1px solid #d1d5db; margin-top:8px;"></textarea>
+      </div>
+
+      <div class="question" id="q6">
+        <b>6. ¿Para qué sirve insertar una tabla en Word?</b>
+        <div class="choices">
+          <label><input type="radio" name="q6" value="a"> a) Organizar información en filas y columnas</label>
+          <label><input type="radio" name="q6" value="b"> b) Cambiar la letra del texto</label>
+          <label><input type="radio" name="q6" value="c"> c) Enviar correos</label>
+        </div>
+      </div>
+
+      <div class="question" id="q7">
+        <b>7. ¿Qué parte de la computadora usamos para escribir?</b>
+        <div class="choices">
+          <label><input type="radio" name="q7" value="a"> a) Monitor</label>
+          <label><input type="radio" name="q7" value="b"> b) Teclado</label>
+          <label><input type="radio" name="q7" value="c"> c) Mouse</label>
+        </div>
+      </div>
+
+      <div class="question" id="q8">
+        <b>8. ¿Para que sirve una carpeta y por que es importante? </b>
+        <textarea id="q8open" rows="3" style="width:100%; padding:8px; border-radius:8px; border:1px solid #d1d5db; margin-top:8px;"></textarea>
+      </div>
+
+      <div class="question" id="q9">
+        <b>9. ¿Dónde está la barra de herramientas (cinta de opciones) en Word?</b>
+        <div class="choices">
+          <label><input type="radio" name="q9" value="a"> a) En la parte superior, con Inicio / Insertar / Diseño…</label>
+          <label><input type="radio" name="q9" value="b"> b) En la parte del teclado</label>
+          <label><input type="radio" name="q9" value="c"> c) En el pie de página</label>
+        </div>
+      </div>
+
+      <div class="question" id="q10">
+        <b>10. ¿Qué es un archivo?</b>
+        <div class="choices">
+          <label><input type="radio" name="q10" value="a"> a) Un documento guardado en la computadora</label>
+          <label><input type="radio" name="q10" value="b"> b) Un documento guardado en mi escritorio de mi casa</label>
+          <label><input type="radio" name="q10" value="c"> c) Es una aplicacion para hacer archivos</label>
+        </div>
+      </div>
+
+      <!-- Dibujo -->
+      <div class="question" id="qdibujo">
+        <b>Actividad – Dibuja y colorea un animal que te guste pero este tiene que mover una computadora</b>
+        <div style="margin-top:10px; font-size:13px; color:#374151">Dibuja con el mouse o con el dedo (pantallas táctiles). El dibujo se incluirá en el PDF.</div>
+
+        <div class="draw-area">
+          <div class="canvas-box" aria-hidden="false">
+            <canvas id="canvas" width="1200" height="800"></canvas>
+          </div>
+
+          <div class="tools">
+            <div style="font-weight:700; margin-bottom:8px;">Paleta</div>
+            <div class="palette" id="palette">
+              <div class="swatch" style="background:#ff3b30" data-color="#ff3b30" title="Rojo"></div>
+              <div class="swatch" style="background:#ff9500" data-color="#ff9500" title="Naranja"></div>
+              <div class="swatch" style="background:#ffd60a" data-color="#ffd60a" title="Amarillo"></div>
+              <div class="swatch" style="background:#34c759" data-color="#34c759" title="Verde"></div>
+              <div class="swatch" style="background:#0a84ff" data-color="#0a84ff" title="Azul"></div>
+              <div class="swatch" style="background:#bf5af2" data-color="#bf5af2" title="Morado"></div>
+              <div class="swatch" style="background:#111827" data-color="#111827" title="Negro"></div>
+              <div class="swatch" style="background:#ffffff; border:1px solid #ccc" data-color="#ffffff" title="Blanco"></div>
+            </div>
+
+            <div style="margin-top:10px;">
+              <label style="font-size:13px; display:block; margin-bottom:6px;">Tamaño del pincel</label>
+              <input id="brush" type="range" min="1" max="30" value="6" style="width:100%;">
+            </div>
+
+            <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="small" id="clearBtn">Borrar todo</button>
+              <button class="small" id="undoBtn">Deshacer</button>
+              <button class="small" id="fillWhiteBtn">Fondo blanco</button>
+            </div>
+
+            <div style="margin-top:12px;">
+              <small style="color:#374151">Consejo: Usa colores del lado y ajusta el tamaño.</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:16px;">
+        <button id="doneBtn" class="primary-btn">Terminar</button>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+/* ---------- Canvas drawing (Pointer Events + HiDPI scaling + Undo) ---------- */
+(function(){
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  // HiDPI / Retina scaling: scale canvas bitmap to devicePixelRatio
+  function scaleCanvasForDisplay() {
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const rect = canvas.getBoundingClientRect();
+    // keep internal size as original attributes (1200x800) but we want crisp drawing.
+    // We'll adapt by setting canvas.width/height as rect* dpr for crispness, then scale context.
+    const displayWidth = Math.round(rect.width * dpr);
+    const displayHeight = Math.round(rect.height * dpr);
+    if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
+      // create temp image to preserve content
+      const old = document.createElement('canvas');
+      old.width = canvas.width;
+      old.height = canvas.height;
+      old.getContext('2d').drawImage(canvas, 0, 0);
+      canvas.width = displayWidth;
+      canvas.height = displayHeight;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // scale drawing operations to CSS pixels
+      // redraw old content (scaled)
+      ctx.drawImage(old, 0, 0, old.width / dpr, old.height / dpr);
+    } else {
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+  }
+
+  // ensure canvas CSS height is fixed (matches CSS in page: height:420px)
+  // call scale on load and on resize
+  function ensureCanvasDisplaySize() {
+    // Force canvas style height to the CSS rule: 420px (already in CSS). Use bounding rect.
+    scaleCanvasForDisplay();
+  }
+  window.addEventListener('resize', ensureCanvasDisplaySize);
+  ensureCanvasDisplaySize();
+
+  // Undo stack
+  const undoStack = [];
+  const MAX_UNDO = 30;
+
+  function saveState(){
+    try{
+      if(undoStack.length >= MAX_UNDO) undoStack.shift();
+      undoStack.push(canvas.toDataURL());
+    }catch(e){ console.warn('saveState error', e); }
+  }
+  function restoreState(){
+    if(undoStack.length === 0) return;
+    const data = undoStack.pop();
+    const img = new Image();
+    img.onload = function(){
+      // clear and draw
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      // draw image stretched to canvas display size in CSS pixels
+      const rect = canvas.getBoundingClientRect();
+      ctx.drawImage(img, 0, 0, rect.width, rect.height);
+      // ensure transform remains correct
+      ensureCanvasDisplaySize();
+    };
+    img.src = data;
+  }
+
+  // initialize with white background and save state
+  function fillWhiteBackground(){
+    const rect = canvas.getBoundingClientRect();
+    ctx.save();
+    ctx.setTransform(1,0,0,1,0,0); // temporarily reset transform to fill easily in device pixels
+    // fill using CSS pixel size scaled by devicePixelRatio
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,rect.width, rect.height);
+    ctx.restore();
+    saveState();
+  }
+
+  // Try to set an initial white background only once
+  fillWhiteBackground();
+
+  // Pointer drawing state
+  let drawing = false;
+  let lastX = 0, lastY = 0;
+  let brushColor = '#111827';
+  let brushSize = 6;
+
+  // Helpers: convert client coords to canvas coords (CSS pixels)
+  function clientToCanvas(e){
+    const rect = canvas.getBoundingClientRect();
+    let clientX, clientY;
+    if(e.touches && e.touches[0]){
+      clientX = e.touches[0].clientX; clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX; clientY = e.clientY;
+    }
+    const x = (clientX - rect.left);
+    const y = (clientY - rect.top);
+    return { x, y };
+  }
+
+  function pointerDown(e){
+    e.preventDefault();
+    drawing = true;
+    const p = clientToCanvas(e);
+    lastX = p.x; lastY = p.y;
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+  }
+  function pointerMove(e){
+    if(!drawing) return;
+    e.preventDefault();
+    const p = clientToCanvas(e);
+    ctx.lineWidth = brushSize;
+    ctx.strokeStyle = brushColor;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    lastX = p.x; lastY = p.y;
+  }
+  function pointerUp(e){
+    if(!drawing) return;
+    drawing = false;
+    ctx.closePath();
+    saveState();
+  }
+
+  // Use pointer events if available, else fall back to mouse/touch
+  if(window.PointerEvent){
+    canvas.addEventListener('pointerdown', pointerDown);
+    canvas.addEventListener('pointermove', pointerMove);
+    window.addEventListener('pointerup', pointerUp);
+  } else {
+    // mouse
+    canvas.addEventListener('mousedown', pointerDown);
+    canvas.addEventListener('mousemove', pointerMove);
+    window.addEventListener('mouseup', pointerUp);
+    // touch
+    canvas.addEventListener('touchstart', function(e){ pointerDown(e); }, {passive:false});
+    canvas.addEventListener('touchmove', function(e){ pointerMove(e); }, {passive:false});
+    window.addEventListener('touchend', function(e){ pointerUp(e); }, {passive:false});
+  }
+
+  // Palette and tools
+  document.querySelectorAll('.swatch').forEach(s=>{
+    s.addEventListener('click', ()=>{
+      document.querySelectorAll('.swatch').forEach(x=>x.classList.remove('selected'));
+      s.classList.add('selected');
+      brushColor = s.dataset.color || '#111827';
+    });
+  });
+  // select first
+  const first = document.querySelector('.swatch');
+  if(first){ first.classList.add('selected'); brushColor = first.dataset.color; }
+
+  document.getElementById('brush').addEventListener('input', function(e){
+    brushSize = parseInt(e.target.value,10) || 6;
+  });
+
+  document.getElementById('clearBtn').addEventListener('click', function(){
+    if(!confirm('¿Borrar todo el dibujo?')) return;
+    const rect = canvas.getBoundingClientRect();
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    // fill white again
+    ctx.save();
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,rect.width, rect.height);
+    ctx.restore();
+    saveState();
+  });
+
+  document.getElementById('undoBtn').addEventListener('click', function(){
+    restoreState();
+  });
+
+  document.getElementById('fillWhiteBtn').addEventListener('click', function(){
+    if(!confirm('¿Poner fondo blanco?')) return;
+    const rect = canvas.getBoundingClientRect();
+    ctx.save();
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,rect.width, rect.height);
+    ctx.restore();
+    saveState();
+  });
+
+  // On resize, re-scale preserving content
+  window.addEventListener('resize', function(){
+    // redraw current data to scaled canvas
+    ensureCanvasDisplaySize();
+  });
+
+  function ensureCanvasDisplaySize(){
+    // Recompute transform while preserving current drawing
+    // We'll take a snapshot and redraw (so nothing lost)
+    const snap = canvas.toDataURL();
+    scaleCanvasForDisplay();
+    const img = new Image();
+    img.onload = function(){
+      const rect = canvas.getBoundingClientRect();
+      ctx.drawImage(img, 0, 0, rect.width, rect.height);
+    };
+    img.src = snap;
+  }
+})();
+
+/* ---------- PDF generation (same logic as before) ---------- */
+document.getElementById('doneBtn').addEventListener('click', function(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'mm', format:'a4' });
+  const nombre = document.getElementById('nombre').value || '[Sin nombre]';
+  const fecha = document.getElementById('fecha').value || new Date().toLocaleDateString();
+
+  // collect answers
+  function getRadioText(name){
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.parentNode.textContent.trim() : '[Sin responder]';
+  }
+  const answers = [];
+  for(let i=1;i<=10;i++){
+    if(i===5){
+      answers.push({q:i, a: document.getElementById('q5open').value || '[Sin responder]' });
+    } else if(i===8){
+      answers.push({q:i, a: document.getElementById('q8open').value || '[Sin responder]' });
+    } else {
+      answers.push({q:i, a: getRadioText('q'+i) });
+    }
+  }
+
+  // get canvas image (draw to temp canvas to ensure white background)
+  const canvas = document.getElementById('canvas');
+  const rect = canvas.getBoundingClientRect();
+  const temp = document.createElement('canvas');
+  temp.width = rect.width;
+  temp.height = rect.height;
+  const tctx = temp.getContext('2d');
+  tctx.fillStyle = '#ffffff';
+  tctx.fillRect(0,0,temp.width,temp.height);
+  // draw scaled from displayed canvas to temp
+  tctx.drawImage(canvas, 0, 0, temp.width, temp.height);
+  const imgData = temp.toDataURL('image/png');
+
+  // write PDF
+  let x = 15, y = 15;
+  doc.setFontSize(16);
+  doc.setTextColor(10, 35, 81);
+  doc.text('Examen de Computación — 4° de Primaria', x, y);
+  y += 8;
+  doc.setFontSize(11);
+  doc.setTextColor(30,30,30);
+  doc.text(`Nombre: ${nombre}`, x, y); y += 6;
+  doc.text(`Fecha: ${fecha}`, x, y); y += 10;
+
+  doc.setFontSize(12);
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const marginRight = 15;
+  const usableWidth = pageWidth - x - marginRight;
+
+  for(const item of answers){
+    const qText = `${item.q}. ${item.a}`;
+    const split = doc.splitTextToSize(qText, usableWidth);
+    doc.text(split, x, y);
+    y += (split.length * 6) + 4;
+    if(y > 250){
+      doc.addPage();
+      y = 15;
+    }
+  }
+
+  if(y > 200){
+    doc.addPage();
+    y = 15;
+  }
+  doc.setFontSize(13);
+  doc.text('Dibujo del alumno (Italian Brainrot con computadora):', x, y);
+  y += 6;
+
+  // compute image size in mm
+  const pxToMm = 0.264583;
+  const imgWidthMm = temp.width * pxToMm;
+  const imgHeightMm = temp.height * pxToMm;
+  const imgMaxWidthMm = doc.internal.pageSize.getWidth() - x - marginRight;
+  let drawW = imgWidthMm, drawH = imgHeightMm;
+  if(drawW > imgMaxWidthMm){
+    const r = imgMaxWidthMm / drawW; drawW *= r; drawH *= r;
+  }
+  if(y + drawH > doc.internal.pageSize.getHeight() - 20){
+    doc.addPage(); y = 15;
+  }
+  doc.addImage(imgData, 'PNG', x, y, drawW, drawH);
+
+  const safeName = (nombre && nombre.trim()!=='') ? nombre.replace(/[^\w\- ]/g,'') : 'Alumno';
+  doc.save(`Examen_${safeName}.pdf`);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Examen de Computación - 5° de Primaria (Word & PowerPoint)</title>
+
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+  :root{
+    --primary:#1266d1;
+    --bg:#eef6ff;
+    --card:#ffffff;
+  }
+  body{ font-family: Inter, "Segoe UI", Arial, sans-serif; background:var(--bg); margin:16px; color:#1f2937; }
+  .container{ max-width:980px; margin:auto; }
+  header{ text-align:center; margin-bottom:12px; }
+  h1{ color:var(--primary); margin:6px 0; font-size:28px; }
+  .card{ background:var(--card); padding:18px; border-radius:12px; box-shadow:0 8px 30px rgba(18,102,209,0.08); border:1px solid rgba(18,102,209,0.06); }
+  .meta{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+  .meta .field{ flex:0 0 240px; }
+  input[type="text"], input[type="date"], textarea{ width:100%; padding:8px; border-radius:8px; border:1px solid #d1d5db; font-size:14px; }
+  .question{ margin: 12px 0; padding:12px; border-radius:10px; background: linear-gradient(180deg,#ecf6ff,#fbfeff); border-left:6px solid var(--primary); }
+  .question b{ font-size:15px; }
+  .choices label{ display:block; margin:8px 0; padding:8px; border-radius:8px; cursor:pointer; }
+  .choices input[type="radio"]{ margin-right:8px; accent-color: var(--primary); }
+
+  /* Canvas area */
+  .draw-area{ display:flex; gap:16px; align-items:flex-start; margin-top:10px; flex-wrap:wrap; }
+  .canvas-box{ width:720px; max-width:100%; border-radius:10px; border:3px solid #111827; overflow:hidden; background:white; }
+  canvas{ display:block; width:100%; height:420px; touch-action:none; cursor:crosshair; }
+  .tools{ padding:10px; min-width:200px; background:linear-gradient(#fff,#fbfdff); border-radius:8px; box-shadow:0 4px 14px rgba(0,0,0,0.04); border:1px solid #e6eefc; }
+  .palette{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:8px;}
+  .swatch{ width:36px; height:36px; border-radius:6px; border:2px solid #fff; box-shadow:0 1px 3px rgba(0,0,0,0.12); cursor:pointer; }
+  .swatch.selected{ outline:3px solid rgba(18,102,209,0.15); transform:scale(1.02); }
+  .small{ font-size:13px; padding:8px 10px; border-radius:8px; border:1px solid #cbd5e1; background:white; cursor:pointer; }
+  .primary-btn{ background:var(--primary); color:white; padding:12px 18px; border:none; border-radius:10px; cursor:pointer; font-weight:700; box-shadow:0 6px 18px rgba(18,102,209,0.18); }
+
+  footer{ text-align:center; margin-top:14px; color:#555; font-size:13px; }
+  @media print{ .tools, .primary-btn{ display:none; } }
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Examen de Computación — 5° de Primaria</h1>
+      <div style="color:#374151">Temas: Microsoft Word y PowerPoint. Responde con cuidado.</div>
+    </header>
+
+    <div class="card">
+      <div class="meta">
+        <div class="field">
+          <label for="nombre"><strong>Nombre del alumno(a)</strong></label>
+          <input id="nombre" type="text" placeholder="Escribe tu nombre">
+        </div>
+        <div class="field">
+          <label for="fecha"><strong>Fecha</strong></label>
+          <input id="fecha" type="date">
+        </div>
+      </div>
+
+      <!-- 5 preguntas Word -->
+      <div class="question" id="q1">
+        <b>1. (Word) ¿En qué pestaña encuentras las opciones para cambiar márgenes, orientación y tamaño del papel?</b>
+        <div class="choices">
+          <label><input type="radio" name="q1" value="a"> a) Diseño de página / Diseño</label>
+          <label><input type="radio" name="q1" value="b"> b) Insertar</label>
+          <label><input type="radio" name="q1" value="c"> c) Inicio</label>
+        </div>
+      </div>
+
+      <div class="question" id="q2">
+        <b>2. (Word) ¿Cuál es la diferencia entre "Guardar" y "Guardar como"?</b>
+        <div class="choices">
+          <label><input type="radio" name="q2" value="a"> a) "Guardar" guarda los cambios en el mismo archivo; "Guardar como" crea una copia con otro nombre o formato</label>
+          <label><input type="radio" name="q2" value="b"> b) No hay diferencia</label>
+          <label><input type="radio" name="q2" value="c"> c) "Guardar" imprime y "Guardar como" envía por correo</label>
+        </div>
+      </div>
+
+      <div class="question" id="q3">
+        <b>3. (Word) ¿Para qué usamos estilos (Estilo Título, Normal, Encabezado) en un documento?</b>
+        <div class="choices">
+          <label><input type="radio" name="q3" value="a"> a) Para uniformar el formato y facilitar la creación del índice</label>
+          <label><input type="radio" name="q3" value="b"> b) Para cambiar el idioma del texto</label>
+          <label><input type="radio" name="q3" value="c"> c) Para limpiar virus</label>
+        </div>
+      </div>
+
+      <div class="question" id="q4">
+        <b>4. (Word) Si quieres insertar una tabla con 4 columnas y 3 filas, ¿qué haces?</b>
+        <div class="choices">
+          <label><input type="radio" name="q4" value="a"> a) Insertar → Tabla → elegir 4x3</label>
+          <label><input type="radio" name="q4" value="b"> b) Diseño → Márgenes</label>
+          <label><input type="radio" name="q4" value="c"> c) Revisar → Ortografía</label>
+        </div>
+      </div>
+
+      <div class="question" id="q5">
+        <b>5. (Word - abierto) Explica en 2 o 3 líneas cómo cambiarías el interlineado de un párrafo.</b>
+        <textarea id="q5open" rows="3" style="width:100%; padding:8px; border-radius:8px; border:1px solid #d1d5db; margin-top:8px;"></textarea>
+      </div>
+
+      <!-- 5 preguntas PowerPoint -->
+      <div class="question" id="q6">
+        <b>6. (PowerPoint) ¿Qué hace la pestaña "Transiciones"?</b>
+        <div class="choices">
+          <label><input type="radio" name="q6" value="a"> a) Añade efectos al cambiar de una diapositiva a otra</label>
+          <label><input type="radio" name="q6" value="b"> b) Inserta imágenes</label>
+          <label><input type="radio" name="q6" value="c"> c) Cambia el idioma</label>
+        </div>
+      </div>
+
+      <div class="question" id="q7">
+        <b>7. (PowerPoint) ¿Dónde puedes añadir animaciones a un cuadro de texto o imagen?</b>
+        <div class="choices">
+          <label><input type="radio" name="q7" value="a"> a) Pestaña Animaciones</label>
+          <label><input type="radio" name="q7" value="b"> b) Pestaña Insertar</label>
+          <label><input type="radio" name="q7" value="c"> c) Pestaña Revisar</label>
+        </div>
+      </div>
+
+      <div class="question" id="q8">
+        <b>8. (PowerPoint - abierto) Describe brevemente (2-3 líneas) cómo harías que una imagen entre desde la izquierda con animación.</b>
+        <textarea id="q8open" rows="3" style="width:100%; padding:8px; border-radius:8px; border:1px solid #d1d5db; margin-top:8px;"></textarea>
+      </div>
+
+      <div class="question" id="q9">
+        <b>9. (PowerPoint) ¿Qué formato de archivo usarías para mostrar la presentación en una computadora que no tiene PowerPoint?</b>
+        <div class="choices">
+          <label><input type="radio" name="q9" value="a"> a) PDF o vídeo (MP4)</label>
+          <label><input type="radio" name="q9" value="b"> b) .docx</label>
+          <label><input type="radio" name="q9" value="c"> c) .txt</label>
+        </div>
+      </div>
+
+      <div class="question" id="q10">
+        <b>10. (PowerPoint) ¿Cuál es la ventaja de usar "Diseño de diapositiva" (plantillas)?</b>
+        <div class="choices">
+          <label><input type="radio" name="q10" value="a"> a) Da estilo uniforme y ahorra tiempo al crear diapositivas</label>
+          <label><input type="radio" name="q10" value="b"> b) Hace que el archivo pese más</label>
+          <label><input type="radio" name="q10" value="c"> c) Borra las imágenes</label>
+        </div>
+      </div>
+
+      <!-- Dibujo (tema: escena estilo Minecraft o libre) -->
+      <div class="question" id="qdibujo">
+        <b>Actividad — Realiza un autoretrato en versión "Minecraft"</b>
+        <div style="margin-top:8px; font-size:13px; color:#374151">Usa los colores y el pincel para dibujar en el recuadro. El dibujo se incluirá en el PDF.</div>
+
+        <div class="draw-area" style="margin-top:10px;">
+          <div class="canvas-box" aria-hidden="false">
+            <canvas id="canvas" width="1200" height="800"></canvas>
+          </div>
+
+          <div class="tools" style="flex:0 0 220px;">
+            <div style="font-weight:700; margin-bottom:8px;">Paleta</div>
+            <div class="palette" id="palette">
+              <div class="swatch" style="background:#2b2b2b" data-color="#2b2b2b" title="Negro"></div>
+              <div class="swatch" style="background:#0a84ff" data-color="#0a84ff" title="Azul"></div>
+              <div class="swatch" style="background:#34c759" data-color="#34c759" title="Verde"></div>
+              <div class="swatch" style="background:#ffd60a" data-color="#ffd60a" title="Amarillo"></div>
+              <div class="swatch" style="background:#ff6b6b" data-color="#ff6b6b" title="Rojo"></div>
+              <div class="swatch" style="background:#bf5af2" data-color="#bf5af2" title="Morado"></div>
+              <div class="swatch" style="background:#8b5cf6" data-color="#8b5cf6" title="Violeta"></div>
+              <div class="swatch" style="background:#ffffff; border:1px solid #ccc" data-color="#ffffff" title="Blanco"></div>
+            </div>
+
+            <div style="margin-top:10px;">
+              <label style="font-size:13px; display:block; margin-bottom:6px;">Tamaño del pincel</label>
+              <input id="brush" type="range" min="1" max="30" value="6" style="width:100%;">
+            </div>
+
+            <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="small" id="clearBtn">Borrar todo</button>
+              <button class="small" id="undoBtn">Deshacer</button>
+              <button class="small" id="fillWhiteBtn">Fondo blanco</button>
+            </div>
+
+            <div style="margin-top:12px; font-size:13px; color:#374151;">
+              Consejo: si quieres dibujar estilo "Minecraft", usa formas cuadradas y colores sólidos.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Botón generar PDF -->
+      <div style="text-align:center; margin-top:16px;">
+        <button id="doneBtn" class="primary-btn">Terminar</button>
+      </div>
+
+    </div>
+
+    <footer>
+      <div>Profesor: revisa los PDFs guardados para cada alumno.</div>
+    </footer>
+  </div>
+
+<script>
+/* ---------- Canvas drawing (Pointer Events + HiDPI scaling + Undo) ---------- */
+(function(){
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+
+  // HiDPI scaling helper: set canvas bitmap to match CSS size * devicePixelRatio
+  function scaleCanvasForDisplay(){
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const rect = canvas.getBoundingClientRect();
+    const displayWidth = Math.round(rect.width * dpr);
+    const displayHeight = Math.round(rect.height * dpr);
+    // preserve current drawing
+    const old = document.createElement('canvas');
+    old.width = canvas.width;
+    old.height = canvas.height;
+    old.getContext('2d').drawImage(canvas, 0, 0);
+    canvas.width = displayWidth;
+    canvas.height = displayHeight;
+    // scale drawing operations to CSS pixels
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // redraw old (it will be scaled down/up depending)
+    ctx.drawImage(old, 0, 0, rect.width, rect.height);
+  }
+
+  function ensureScaled(){
+    // Make sure canvas CSS height is 420px as in styles; compute bounding rect then scale
+    scaleCanvasForDisplay();
+  }
+  window.addEventListener('resize', ensureScaled);
+  ensureScaled();
+
+  // Undo stack
+  const undoStack = [];
+  const MAX_UNDO = 40;
+  function saveState(){
+    try{
+      if(undoStack.length >= MAX_UNDO) undoStack.shift();
+      undoStack.push(canvas.toDataURL());
+    }catch(e){ console.warn('saveState', e); }
+  }
+  function restoreState(){
+    if(undoStack.length === 0) return;
+    const data = undoStack.pop();
+    const img = new Image();
+    img.onload = function(){
+      // clear and draw
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      // draw scaled to rect size
+      const rect = canvas.getBoundingClientRect();
+      ctx.drawImage(img, 0, 0, rect.width, rect.height);
+    };
+    img.src = data;
+  }
+
+  // initialize background white
+  function fillWhiteBackground(){
+    const rect = canvas.getBoundingClientRect();
+    ctx.save();
+    ctx.setTransform(1,0,0,1,0,0);
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,rect.width, rect.height);
+    ctx.restore();
+    saveState();
+  }
+  fillWhiteBackground();
+
+  // pointer drawing
+  let drawing = false;
+  let lastX=0, lastY=0;
+  let brushSize = 6;
+  let brushColor = '#111827';
+
+  function clientToCanvas(e){
+    const rect = canvas.getBoundingClientRect();
+    let clientX, clientY;
+    if(e.touches && e.touches[0]){ clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+    else { clientX = e.clientX; clientY = e.clientY; }
+    const x = (clientX - rect.left);
+    const y = (clientY - rect.top);
+    return { x, y };
+  }
+
+  function down(e){
+    e.preventDefault();
+    drawing = true;
+    const p = clientToCanvas(e);
+    lastX = p.x; lastY = p.y;
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+  }
+  function move(e){
+    if(!drawing) return;
+    e.preventDefault();
+    const p = clientToCanvas(e);
+    ctx.lineWidth = brushSize;
+    ctx.strokeStyle = brushColor;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    lastX = p.x; lastY = p.y;
+  }
+  function up(e){
+    if(!drawing) return;
+    drawing = false;
+    ctx.closePath();
+    saveState();
+  }
+
+  if(window.PointerEvent){
+    canvas.addEventListener('pointerdown', down);
+    canvas.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  } else {
+    canvas.addEventListener('mousedown', down);
+    canvas.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+    canvas.addEventListener('touchstart', function(e){ down(e); }, {passive:false});
+    canvas.addEventListener('touchmove', function(e){ move(e); }, {passive:false});
+    window.addEventListener('touchend', function(e){ up(e); }, {passive:false});
+  }
+
+  // palette
+  document.querySelectorAll('.swatch').forEach(s=>{
+    s.addEventListener('click', ()=>{
+      document.querySelectorAll('.swatch').forEach(x=>x.classList.remove('selected'));
+      s.classList.add('selected');
+      brushColor = s.dataset.color || '#111827';
+    });
+  });
+  const first = document.querySelector('.swatch');
+  if(first){ first.classList.add('selected'); brushColor = first.dataset.color; }
+
+  document.getElementById('brush').addEventListener('input', function(e){
+    brushSize = parseInt(e.target.value,10) || 6;
+  });
+
+  document.getElementById('clearBtn').addEventListener('click', function(){
+    if(!confirm('¿Borrar todo el dibujo?')) return;
+    const rect = canvas.getBoundingClientRect();
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    // fill white again
+    ctx.save();
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,rect.width, rect.height);
+    ctx.restore();
+    saveState();
+  });
+
+  document.getElementById('undoBtn').addEventListener('click', function(){
+    restoreState();
+  });
+
+  document.getElementById('fillWhiteBtn').addEventListener('click', function(){
+    if(!confirm('¿Poner fondo blanco?')) return;
+    const rect = canvas.getBoundingClientRect();
+    ctx.save();
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0,0,rect.width, rect.height);
+    ctx.restore();
+    saveState();
+  });
+
+  window.addEventListener('resize', function(){
+    // preserve existing drawing by snapshot + redraw
+    const snap = canvas.toDataURL();
+    scaleCanvasForDisplay();
+    const img = new Image();
+    img.onload = function(){ const rect = canvas.getBoundingClientRect(); ctx.drawImage(img,0,0,rect.width,rect.height); };
+    img.src = snap;
+  });
+
+  // helper used in resize
+  function scaleCanvasForDisplay(){
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const rect = canvas.getBoundingClientRect();
+    const displayWidth = Math.round(rect.width * dpr);
+    const displayHeight = Math.round(rect.height * dpr);
+    const old = document.createElement('canvas');
+    old.width = canvas.width; old.height = canvas.height;
+    old.getContext('2d').drawImage(canvas,0,0);
+    canvas.width = displayWidth; canvas.height = displayHeight;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.drawImage(old,0,0,rect.width,rect.height);
+  }
+})();
+
+/* ---------- PDF generation and download (jsPDF) ---------- */
+document.getElementById('doneBtn').addEventListener('click', function(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit:'mm', format:'a4' });
+  const nombre = document.getElementById('nombre').value || '[Sin nombre]';
+  const fecha = document.getElementById('fecha').value || new Date().toLocaleDateString();
+
+  // collect radio/open answers
+  function radioText(name){
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.parentNode.textContent.trim() : '[Sin responder]';
+  }
+  const answers = [];
+  for(let i=1;i<=10;i++){
+    if(i===5){
+      answers.push({q:i, a: document.getElementById('q5open').value || '[Sin responder]'});
+    } else if(i===8){
+      answers.push({q:i, a: document.getElementById('q8open').value || '[Sin responder]'});
+    } else {
+      answers.push({q:i, a: radioText('q'+i)});
+    }
+  }
+
+  // prepare canvas image (draw to temp canvas of CSS size, ensure white background)
+  const canvas = document.getElementById('canvas');
+  const rect = canvas.getBoundingClientRect();
+  const temp = document.createElement('canvas');
+  temp.width = Math.round(rect.width);
+  temp.height = Math.round(rect.height);
+  const tctx = temp.getContext('2d');
+  tctx.fillStyle = '#ffffff';
+  tctx.fillRect(0,0,temp.width,temp.height);
+  // draw displayed canvas into temp (scale)
+  tctx.drawImage(canvas, 0, 0, temp.width, temp.height);
+  const imgData = temp.toDataURL('image/png');
+
+  // Write PDF content
+  let x = 15, y = 15;
+  doc.setFontSize(16);
+  doc.setTextColor(10, 35, 81);
+  doc.text('Examen de Computación — 5° de Primaria', x, y); y += 8;
+  doc.setFontSize(11);
+  doc.setTextColor(30,30,30);
+  doc.text(`Nombre: ${nombre}`, x, y); y += 6;
+  doc.text(`Fecha: ${fecha}`, x, y); y += 10;
+
+  doc.setFontSize(12);
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const marginRight = 15;
+  const usableWidth = pageWidth - x - marginRight;
+
+  for(const item of answers){
+    const qText = `${item.q}. ${item.a}`;
+    const split = doc.splitTextToSize(qText, usableWidth);
+    doc.text(split, x, y);
+    y += (split.length * 6) + 4;
+    if(y > 250){
+      doc.addPage(); y = 15;
+    }
+  }
+
+  if(y > 200){
+    doc.addPage(); y = 15;
+  }
+  doc.setFontSize(13);
+  doc.text('Dibujo del alumno (tema de moda):', x, y); y += 6;
+
+  // compute image size in mm and add
+  const pxToMm = 0.264583;
+  const imgWidthMm = temp.width * pxToMm;
+  const imgHeightMm = temp.height * pxToMm;
+  const imgMaxWidthMm = doc.internal.pageSize.getWidth() - x - marginRight;
+  let drawW = imgWidthMm, drawH = imgHeightMm;
+  if(drawW > imgMaxWidthMm){
+    const r = imgMaxWidthMm / drawW; drawW *= r; drawH *= r;
+  }
+  if(y + drawH > doc.internal.pageSize.getHeight() - 20){
+    doc.addPage(); y = 15;
+  }
+  doc.addImage(imgData, 'PNG', x, y, drawW, drawH);
+
+  const safeName = (nombre && nombre.trim()!=='') ? nombre.replace(/[^\w\- ]/g,'') : 'Alumno';
+  doc.save(`Examen5_${safeName}.pdf`);
+});
+</script>
+</body>
+</html>

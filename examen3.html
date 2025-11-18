@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Examen de Computación - 3° de Primaria</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #e8f4ff;
+        padding: 20px;
+        max-width: 900px;
+        margin: auto;
+    }
+    h1 {
+        text-align: center;
+        color: #1a4ba3;
+    }
+    .box {
+        background: white;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px #c5d9ff;
+    }
+    .question {
+        margin-bottom: 20px;
+        font-size: 18px;
+    }
+    canvas {
+        border: 2px solid black;
+        background: white;
+        border-radius: 8px;
+    }
+    .colors button {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        border: none;
+        margin-right: 5px;
+        cursor: pointer;
+    }
+    #generateBtn {
+        background: #1a73e8;
+        color: white;
+        padding: 15px 25px;
+        border: none;
+        border-radius: 10px;
+        font-size: 18px;
+        cursor: pointer;
+        display: block;
+        margin: 25px auto;
+    }
+</style>
+</head>
+<body>
+
+<h1>Examen de Computación - 3° de Primaria</h1>
+
+<div class="box">
+    <label>Nombre del alumno:</label><br>
+    <input type="text" id="nombre" style="width: 100%; font-size: 18px;"><br><br>
+
+    <label>Fecha:</label><br>
+    <input type="date" id="fecha" style="font-size: 18px;">
+</div>
+
+<div class="box">
+    <h2>Preguntas</h2>
+
+    <div class="question">
+        1. ¿Dónde encontramos los programas como Word, Paint y Calculadora?<br>
+        <input type="radio" name="p1" value="Barra de tareas"> Barra de tareas<br>
+        <input type="radio" name="p1" value="Botón de inicio"> Botón de inicio<br>
+        <input type="radio" name="p1" value="Papelera"> Papelera
+    </div>
+
+    <div class="question">
+        2. ¿Para qué sirve la tecla Enter?<br>
+        <input type="radio" name="p2" value="Hace un salto de línea"> Hace un salto de línea<br>
+        <input type="radio" name="p2" value="Borra todo"> Borra todo<br>
+        <input type="radio" name="p2" value="Apaga la computadora"> Apaga la computadora
+    </div>
+
+    <div class="question">
+        3. ¿Cuál es la barra que está en la parte de abajo de la pantalla?<br>
+        <input type="radio" name="p3" value="Barra de herramientas"> Barra de herramientas<br>
+        <input type="radio" name="p3" value="Barra de tareas"> Barra de tareas<br>
+        <input type="radio" name="p3" value="Barra de colores"> Barra de colores
+    </div>
+
+    <div class="question">
+        4. Escribe dos partes de la computadora:<br>
+        <textarea id="p4" style="width:100%; height:60px;"></textarea>
+    </div>
+
+    <div class="question">
+        5. ¿Qué botón usamos para abrir programas, configuraciones y apagar la computadora?<br>
+        <input type="radio" name="p5" value="Botón de inicio"> Botón de inicio<br>
+        <input type="radio" name="p5" value="Enter"> Enter<br>
+        <input type="radio" name="p5" value="Imprimir"> Imprimir
+    </div>
+
+    <div class="question">
+        6. ¿Para qué sirve Word?<br>
+        <input type="radio" name="p6" value="Para escribir textos"> Para escribir textos<br>
+        <input type="radio" name="p6" value="Para escuchar música"> Para escuchar música<br>
+        <input type="radio" name="p6" value="Para apagar la compu"> Para apagar la compu
+    </div>
+
+    <div class="question">
+        7. Escribe algo que se pueda hacer en Word:<br>
+        <textarea id="p7" style="width:100%; height:60px;"></textarea>
+    </div>
+
+    <div class="question">
+        8. ¿Qué es un teclado?<br>
+        <input type="radio" name="p8" value="Para escribir letras y números"> Para escribir letras y números<br>
+        <input type="radio" name="p8" value="Para ver videos"> Para ver videos<br>
+        <input type="radio" name="p8" value="Es una pantalla"> Es una pantalla
+    </div>
+
+    <div class="question">
+        9. ¿Cómo se llama el lugar donde vemos el reloj y los programas abiertos?<br>
+        <input type="radio" name="p9" value="Barra de tareas"> Barra de tareas<br>
+        <input type="radio" name="p9" value="Carpeta"> Carpeta<br>
+        <input type="radio" name="p9" value="Fondo"> Fondo
+    </div>
+
+    <div class="question">
+        10. ¿Para qué sirve guardar un archivo?<br>
+        <input type="radio" name="p10" value="Para no perder el trabajo"> Para no perder el trabajo<br>
+        <input type="radio" name="p10" value="Para borrar todo"> Para borrar todo<br>
+        <input type="radio" name="p10" value="Para jugar"> Para jugar
+    </div>
+</div>
+
+<div class="box">
+    <h2>Dibujo: Colorea a <b>Bluey usando una computadora</b></h2>
+
+    <div class="colors">
+        <button style="background:black" onclick="changeColor('black')"></button>
+        <button style="background:red" onclick="changeColor('red')"></button>
+        <button style="background:blue" onclick="changeColor('blue')"></button>
+        <button style="background:green" onclick="changeColor('green')"></button>
+        <button style="background:orange" onclick="changeColor('orange')"></button>
+        <button style="background:purple" onclick="changeColor('purple')"></button>
+    </div><br>
+
+    <canvas id="drawing" width="500" height="300"></canvas><br><br>
+
+    <button onclick="clearCanvas()">Borrar dibujo</button>
+</div>
+
+<button id="generateBtn" onclick="generatePDF()">Terminar</button>
+
+<script>
+let canvas = document.getElementById("drawing");
+let ctx = canvas.getContext("2d");
+let painting = false;
+let color = "black";
+
+function changeColor(c) {
+    color = c;
+}
+
+canvas.addEventListener("mousedown", () => painting = true);
+canvas.addEventListener("mouseup", () => painting = false);
+canvas.addEventListener("mousemove", draw);
+
+function draw(e) {
+    if (!painting) return;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(e.offsetX, e.offsetY, 5, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+function generatePDF() {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+
+    let nombre = document.getElementById("nombre").value;
+    let fecha = document.getElementById("fecha").value;
+
+    pdf.setFontSize(16);
+    pdf.text("Examen de Computación - 3° de Primaria", 10, 10);
+    pdf.text("Nombre: " + nombre, 10, 20);
+    pdf.text("Fecha: " + fecha, 10, 30);
+
+    let y = 40;
+
+    function addAnswer(text) {
+        pdf.text(text, 10, y);
+        y += 10;
+    }
+
+    for (let i = 1; i <= 10; i++) {
+        let ans = document.querySelector(`input[name='p${i}']:checked`);
+        addAnswer(`${i}. ${ans ? ans.value : "Sin responder"}`);
+    }
+
+    addAnswer("4. " + document.getElementById("p4").value);
+    addAnswer("7. " + document.getElementById("p7").value);
+
+    html2canvas(canvas).then((c) => {
+        let img = c.toDataURL("image/png");
+        pdf.addPage();
+        pdf.text("Dibujo:", 10, 10);
+        pdf.addImage(img, "PNG", 10, 20, 180, 100);
+        pdf.save("Examen_3ro_Primaria.pdf");
+    });
+}
+</script>
+
+</body>
+</html>
